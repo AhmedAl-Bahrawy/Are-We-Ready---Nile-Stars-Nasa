@@ -1,10 +1,9 @@
-import { Canvas } from "@react-three/fiber";
 import { Suspense } from "react";
 import { OrbitControls, Environment } from "@react-three/drei";
 import { IntroSceneObjects } from "../Objects";
 import { Stars } from "@react-three/drei";
 import { Nebula, Particles } from "../Effects";
-import React from "react";
+import { Canvas } from "@react-three/fiber";
 
 function IntroSceneContent() {
   return (
@@ -27,8 +26,6 @@ function IntroSceneContent() {
       />
 
       <Particles count={4000} />
-
-      {/* Scene Objects */}
       <IntroSceneObjects />
 
       <ambientLight intensity={0.5} />
@@ -40,5 +37,19 @@ function IntroSceneContent() {
         shadow-mapSize-height={1024}
       />
     </>
+  );
+}
+
+export default function IS() {
+  return (
+    <Canvas>
+      <Environment preset="city" />
+      <OrbitControls enablePan={true} enableZoom={true} enableRotate={true} />
+      <Suspense fallback={null}>
+        <Environment preset="city" />
+        <OrbitControls enablePan enableZoom enableRotate />
+        <IntroSceneContent />
+      </Suspense>
+    </Canvas>
   );
 }

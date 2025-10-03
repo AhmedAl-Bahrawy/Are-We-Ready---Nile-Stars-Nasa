@@ -1,23 +1,31 @@
+import { OrbitControls, Environment } from "@react-three/drei";
+import { Suspense } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { TimingProvider } from "./contexts/TimingContext";
-import { IntroOverlay } from "./components/UI";
 import { IS, SS } from "./components/Scenes";
+import { IntroOverlay } from "./components/UI";
+
+function SceneContent() {
+  return (
+    <Suspense fallback={null}>
+      <Routes>
+        <Route path="/" element={<Navigate to="/Intro" />} />
+        <Route path="/Intro" element={<IS />} />
+        <Route path="/Simulation" element={<SS />} />
+      </Routes>
+    </Suspense>
+  );
+}
 
 function App() {
   return (
     <TimingProvider>
-      <Routes>
-        {/* Redirect root */}
-        <Route path="/" element={<Navigate to="/Intro" />} />
-
-        {/* Intro 3D Scene */}
-        <Route path="/Intro" element={<IS />} />
-
-        {/* Simulation page (3D + DOM map + panels) */}
-        <Route path="/Simulation" element={<SS />} />
-      </Routes>
-
-      {/* UI overlay that should always be visible */}
+      <div
+        id="canvas-container"
+        style={{ position: "relative", width: "100vw", height: "100vh" }}
+      >
+        <SceneContent />
+      </div>
       <IntroOverlay />
     </TimingProvider>
   );
