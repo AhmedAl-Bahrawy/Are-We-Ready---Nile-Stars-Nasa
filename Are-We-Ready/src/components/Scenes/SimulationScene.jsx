@@ -111,16 +111,6 @@ function InfoPanel({
               color: "#e0e0e0",
             }}
           >
-            <h2
-              style={{
-                margin: "0 0 20px 0",
-                color: "#ff6b35",
-                fontSize: "22px",
-              }}
-            >
-              💥 Impact Analysis
-            </h2>
-
             <div
               style={{
                 marginBottom: "15px",
@@ -442,27 +432,96 @@ function InfoPanel({
               </p>
             </div>
           </div>
+          {/* Meteor Selection Dropdown */}
+          <div
+            style={{
+              marginBottom: "25px",
+              padding: "20px",
+              background: "linear-gradient(135deg, rgba(26, 35, 50, 0.9) 0%, rgba(20, 25, 37, 0.9) 100%)",
+              borderRadius: "12px",
+              border: "1px solid rgba(74, 158, 255, 0.2)",
+              boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
+            }}
+          >
+            <label
+              htmlFor="meteor"
+              style={{
+                display: "block",
+                color: "#4a9eff",
+                fontSize: "16px",
+                fontWeight: "500",
+                marginBottom: "12px",
+                textShadow: "0 0 10px rgba(74, 158, 255, 0.3)"
+              }}
+            >
+              🌠 Select Known Meteor
+            </label>
+            <select
+              id="meteor"
+              value={selectedMeteor}
+              onChange={handleSelectChange}
+              style={{
+                width: "100%",
+                padding: "10px 15px",
+                fontSize: "14px",
+                color: "#fff",
+                backgroundColor: "rgba(10, 15, 25, 0.8)",
+                border: "1px solid rgba(74, 158, 255, 0.3)",
+                borderRadius: "8px",
+                cursor: "pointer",
+                outline: "none",
+                transition: "all 0.3s ease",
+                WebkitAppearance: "none",
+                MozAppearance: "none",
+                appearance: "none",
+                backgroundImage: "url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%234a9eff%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E')",
+                backgroundRepeat: "no-repeat",
+                backgroundPosition: "right 12px top 50%",
+                backgroundSize: "12px auto",
+                paddingRight: "30px"
+              }}
+            >
+              <option value="">-- Select a Meteor --</option>
+              <option value="433 Eros">433 Eros - Near-Earth Asteroid</option>
+              <option value="99942 Apophis">99942 Apophis - Potentially Hazardous</option>
+              <option value="101955 Bennu">101955 Bennu - NEO with Impact Risk</option>
+            </select>
+            {selectedMeteor && (
+              <div
+                style={{
+                  marginTop: "15px",
+                  padding: "12px",
+                  backgroundColor: "rgba(74, 158, 255, 0.1)",
+                  borderRadius: "8px",
+                  border: "1px solid rgba(74, 158, 255, 0.2)",
+                }}
+              >
+                <p style={{ 
+                  margin: "0",
+                  color: "#4a9eff",
+                  fontSize: "14px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px"
+                }}>
+                  <span style={{ fontSize: "18px" }}>☄️</span>
+                  Selected: <strong>{selectedMeteor}</strong>
+                </p>
+                <p style={{
+                  margin: "8px 0 0 0",
+                  fontSize: "12px",
+                  color: "#aab",
+                  lineHeight: "1.4"
+                }}>
+                  {selectedMeteor === "433 Eros" && "One of the largest near-Earth asteroids, about 16.8 km in diameter."}
+                  {selectedMeteor === "99942 Apophis" && "Famous for initial predictions of possible Earth impact in 2029, now known to pass safely."}
+                  {selectedMeteor === "101955 Bennu" && "A carbon-rich asteroid discovered in 1999, with a small chance of Earth impact in the late 22nd century."}
+                </p>
+              </div>
+            )}
+          </div>
         </>
       )}
-
-      {/* Dropdown */}
-      <div style={{ marginBottom: "20px" }}>
-        <label htmlFor="meteor" style={{ color: "#4a9eff" }}>
-          Choose a meteor:
-        </label>
-        <select
-          id="meteor"
-          value={selectedMeteor}
-          onChange={handleSelectChange}
-          style={{ marginLeft: "10px", padding: "4px" }}
-        >
-          <option value="">--Select--</option>
-          <option value="433 Eros">433 Eros</option>
-          <option value="99942 Apophis">99942 Apophis</option>
-          <option value="101955 Bennu">101955 Bennu</option>
-        </select>
-        <p>Selected meteor: {selectedMeteor || "None"}</p>
-      </div>
     </div>
   );
 }
