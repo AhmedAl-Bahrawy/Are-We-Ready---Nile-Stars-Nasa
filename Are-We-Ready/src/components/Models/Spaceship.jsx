@@ -1,11 +1,11 @@
-import React, { useMemo, Fragment } from "react";
+import React, { useMemo, Fragment, forwardRef } from "react";
 import { useGLTF } from "@react-three/drei";
 import { FireParticles } from "../Effects";
 import * as THREE from "three";
 const GLTF_LOADER =
   "https://cdn.jsdelivr.net/gh/AhmedAl-Bahrawy/Are-We-Ready---Nile-Stars-Nasa-Models@main/Spaceship.glb";
 
-export default function Spaceship(props) {
+const Spaceship = forwardRef((props, ref) => {
   const { nodes, materials } = useGLTF(GLTF_LOADER);
 
   // Memoize engine configurations to prevent re-creation
@@ -60,7 +60,7 @@ export default function Spaceship(props) {
   );
 
   return (
-    <group {...props} dispose={null}>
+    <group {...props} ref={ref} dispose={null}>
       {/* Main spaceship mesh */}
       <mesh
         geometry={nodes.Spaceship_BarbaraTheBee?.geometry}
@@ -154,6 +154,10 @@ export default function Spaceship(props) {
       ))}
     </group>
   );
-}
+});
+
+Spaceship.displayName = "Spaceship";
+
+export default Spaceship;
 
 useGLTF.preload(GLTF_LOADER);

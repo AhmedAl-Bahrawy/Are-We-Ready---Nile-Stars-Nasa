@@ -1,2 +1,3 @@
 import SpaceshipController from "./SpaceshipController";
-export { SpaceshipController };
+import CameraController from "./CameraController";
+export { SpaceshipController, CameraController };

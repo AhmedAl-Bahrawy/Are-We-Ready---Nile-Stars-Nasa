@@ -1,3 +1,4 @@
 import IntroOverlay from './IntroOverlay'
 import NavBar from './NavBar'
-export { IntroOverlay, NavBar };
+import About from './About';
+export { IntroOverlay, NavBar, About };
