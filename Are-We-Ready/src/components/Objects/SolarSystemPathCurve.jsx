@@ -23,13 +23,17 @@ import { useGLTF } from "@react-three/drei";
  * @param {boolean} closed - Whether the curve should loop back to start
  * @returns {THREE.CatmullRomCurve3} - Smooth curve through all waypoint positions
  */
+
+const url =
+  "https://cdn.jsdelivr.net/gh/AhmedAl-Bahrawy/Are-We-Ready---Nile-Stars-Nasa-Models@main/SolarSystem.glb";
+
 export default function SolarSystemPathCurve({
   solarSystemScale = 15,
   tension = 0.5,
   closed = false,
 } = {}) {
   // Load the Solar System GLTF to extract Empty object positions
-  const { nodes } = useGLTF("Models/SolarSystem.glb");
+  const { nodes } = useGLTF(url);
 
   // Extract all Empty objects and sort them numerically
   const emptyObjects = extractSortedEmptyObjects(nodes);
@@ -137,4 +141,4 @@ function createFallbackCurve(scale, tension, closed) {
 }
 
 // Preload the GLTF file for better performance
-useGLTF.preload("Models/SolarSystem.glb");
+useGLTF.preload(url);

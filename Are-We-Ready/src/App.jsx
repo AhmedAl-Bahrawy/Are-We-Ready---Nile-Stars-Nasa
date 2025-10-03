@@ -1,12 +1,13 @@
 import { Suspense, useCallback } from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { TimingProvider } from "./contexts/TimingContext";
 import { IS, SS } from "./components/Scenes";
-import { IntroOverlay } from "./components/UI";
+import { IntroOverlay, NavBar } from "./components/UI";
 
 function SceneContent({ onMouseDown }) {
   return (
     <Suspense fallback={null}>
+      <NavBar />
       <Routes>
         <Route path="/" element={<Navigate to="/Intro" />} />
         <Route path="/Intro" element={<IS onMouseDown={onMouseDown} />} />
@@ -17,9 +18,9 @@ function SceneContent({ onMouseDown }) {
 }
 
 function App() {
+  const location = useLocation(); // هنا بنجيب ال URL الحالي
   const handleMouseDown = useCallback(() => {
     // This function will be called by both components
-    // The specific logic is handled within each component
   }, []);
 
   return (
@@ -30,7 +31,11 @@ function App() {
       >
         <SceneContent onMouseDown={handleMouseDown} />
       </div>
-      <IntroOverlay onMouseDown={handleMouseDown} />
+
+      {/* IntroOverlay يظهر بس في صفحة Intro */}
+      {location.pathname === "/Intro" && (
+        <IntroOverlay onMouseDown={handleMouseDown} />
+      )}
     </TimingProvider>
   );
 }

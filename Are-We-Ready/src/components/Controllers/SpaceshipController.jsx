@@ -55,7 +55,9 @@ const SpaceshipController = forwardRef(({ children, onMouseDown }, ref) => {
   const navigate = useNavigate();
 
   // Load 3D assets and setup curve
-  const { nodes } = useGLTF("Models/SolarSystem.glb");
+  const { nodes } = useGLTF(
+    "https://cdn.jsdelivr.net/gh/AhmedAl-Bahrawy/Are-We-Ready---Nile-Stars-Nasa-Models@main/SolarSystem.glb"
+  );
   const curve = useMemo(
     () =>
       SolarSystemPathCurve({
@@ -151,23 +153,26 @@ const SpaceshipController = forwardRef(({ children, onMouseDown }, ref) => {
   const [gameMode, setGameMode] = useState("overview");
   const [canMove, setCanMove] = useState(false);
 
+  // Memoize mode switching logic
+  const switchGameMode = useCallback((prev) => {
+    const newMode = prev === "follow" ? "overview" : "follow";
+    console.log("🎮 Camera mode switched to:", newMode);
+    return newMode;
+  }, []);
+
   const handleMouseDownEvent = useCallback(
     (e) => {
       if (e.button === 0) {
         const clickProcessed = handleClick();
         if (clickProcessed) {
-          setGameMode((prev) => {
-            const newMode = prev === "follow" ? "overview" : "follow";
-            console.log("🎮 Camera mode switched to:", newMode);
-            return newMode;
-          });
+          setGameMode(switchGameMode);
         }
       }
       if (onMouseDown) {
         onMouseDown(e);
       }
     },
-    [onMouseDown, handleClick]
+    [onMouseDown, handleClick, switchGameMode]
   );
 
   useEffect(() => {
@@ -218,14 +223,18 @@ const SpaceshipController = forwardRef(({ children, onMouseDown }, ref) => {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, []);
 
+  // Memoize overview position and threshold
+  const overviewPosition = useMemo(() => new THREE.Vector3(0, 100, -7), []);
+  const distanceThreshold = useMemo(() => 0.1, []);
+
   useFrame((_state, delta) => {
     if (!ref.current || !canTransform) return;
 
     // Overview mode animation
     if (!canMove) {
-      ref.current.position.lerp(new THREE.Vector3(0, 100, -7), 0.02);
+      ref.current.position.lerp(overviewPosition, 0.02);
       if (
-        ref.current.position.distanceTo(new THREE.Vector3(0, 100, -7)) < 0.1
+        ref.current.position.distanceTo(overviewPosition) < distanceThreshold
       ) {
         ref.current.rotation.y += 2 * delta;
       }
@@ -405,13 +414,34 @@ const SpaceshipController = forwardRef(({ children, onMouseDown }, ref) => {
     ref.current.quaternion.slerp(targetQ, Math.min(delta * 8, 1));
   });
 
+  // Memoize the mesh scale
+  const meshScale = useMemo(() => 0.5, []);
+
+  // Memoize the path visualizer props
+  const pathVisualizerProps = useMemo(
+    () => ({
+      curve,
+      lineNbPoints: LINE_NB_POINTS,
+    }),
+    [curve]
+  );
+
+  // Memoize camera controller props
+  const cameraControllerProps = useMemo(
+    () => ({
+      spaceshipRef: ref,
+      mode: gameMode,
+    }),
+    [gameMode, ref]
+  );
+
   return (
     <>
-      <CameraController spaceshipRef={ref} mode={gameMode} />
-      <mesh ref={ref} scale={0.5}>
+      <CameraController {...cameraControllerProps} />
+      <mesh ref={ref} scale={meshScale}>
         {children}
       </mesh>
-      <PathVisualizer curve={curve} lineNbPoints={LINE_NB_POINTS} />
+      <PathVisualizer {...pathVisualizerProps} />
     </>
   );
 });
