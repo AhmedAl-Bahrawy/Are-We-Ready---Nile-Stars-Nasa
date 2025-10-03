@@ -2,8 +2,16 @@ import { Canvas } from "@react-three/fiber";
 import { OrbitControls, Environment } from "@react-three/drei";
 import { Suspense } from "react";
 import Experience from "./components/Experience";
+import { TimingProvider } from "./contexts/TimingContext";
+import { useCallback } from "react";
+import { IntroOverlay } from "./components/UI";
 
-function App() {
+function AppContent() {
+  const handleMouseDown = useCallback(() => {
+    // This function will be called by both components
+    // The specific logic is handled within each component
+  }, []);
+
   return (
     <div id="canvas-container">
       <Canvas
@@ -22,10 +30,19 @@ function App() {
           />
 
           {/* Scene */}
-          <Experience />
+          <Experience onMouseDown={handleMouseDown} />
         </Suspense>
       </Canvas>
+      <IntroOverlay />
     </div>
+  );
+}
+
+function App() {
+  return (
+    <TimingProvider>
+      <AppContent />
+    </TimingProvider>
   );
 }
 
