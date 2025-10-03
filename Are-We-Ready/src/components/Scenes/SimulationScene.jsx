@@ -1,9 +1,4 @@
-import React, {
-  useState,
-  useRef,
-  useEffect,
-  Suspense,
-} from "react";
+import React, { useState, useRef, useEffect, Suspense, useMemo } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import {
   OrbitControls,
@@ -17,25 +12,6 @@ import {
 import { MapContainer, TileLayer, useMapEvents, Circle } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import * as THREE from "three";
-import axios from "axios";
-const API_BASE = "http://127.0.0.1:8000"; // FastAPI backend URL
-export async function getImpact(lat, lon, angle, diameter, velocity) {
-  try {
-    const response = await axios.get(`${API_BASE}/impact_realistic`, {
-      params: {
-        lat, // example: 30
-        lon, // example: 31
-        angle_deg: angle, // example: 45
-        diameter_m: diameter, // example: 50
-        velocity_km_s: velocity, // example: 20
-      },
-    });
-    return response.data; // return JSON from server
-  } catch (err) {
-    console.error("Error fetching impact data:", err);
-    throw err;
-  }
-}
 
 // Backend API configuration
 const API_BASE = "http://127.0.0.1:8000";
@@ -62,141 +38,6 @@ function MeteorModel() {
   });
   return <primitive ref={ref} object={scene} scale={0.001} />;
 }
-
-function InfoPanel({ impactData, markerLat, markerLon, meteorDiameter }) {
-  if (!impactData) return <p>Loading impact data...</p>;
-
-  return (
-    <div
-      style={{
-        flex: 1.2,
-        background: "#222",
-        padding: "20px",
-        overflowY: "auto",
-        fontSize: "14px",
-        lineHeight: "1.5em",
-      }}
-    >
-      <h2>💥 Explosion Info</h2>
-      <p>
-        <strong>Location:</strong> {markerLat.toFixed(4)},{" "}
-        {markerLon.toFixed(4)}
-      </p>
-      <p>
-        <strong>Meteor Diameter:</strong> {meteorDiameter} m
-      </p>
-
-      {/* Physics */}
-      <h3 style={{ marginTop: "15px", color: "#4af" }}>⚛️ Physics</h3>
-      <ul>
-        <li>Mass: {impactData.physics?.mass_kg?.toExponential(2)} kg</li>
-        <li>Velocity: {impactData.physics?.entry_velocity_km_s} km/s</li>
-        <li>
-          Energy: {impactData.physics?.kinetic_energy_mt_tnt?.toFixed(2)} MT TNT
-        </li>
-        <li>
-          Airburst Altitude:{" "}
-          {impactData.physics?.airburst_altitude_m?.toFixed(0)} m
-        </li>
-        <li>
-          Sonic Boom Radius: {impactData.physics?.sonic_boom_radius_km} km
-        </li>
-      </ul>
-
-      {/* Crater */}
-      <h3 style={{ marginTop: "15px", color: "#ffaa4d" }}>🕳️ Crater</h3>
-      <ul>
-        <li>Diameter: {impactData.crater?.crater_diameter_km} km</li>
-        <li>Depth: {impactData.crater?.crater_depth_m} m</li>
-      </ul>
-
-      {/* Blast */}
-      <h3 style={{ marginTop: "15px", color: "#ff4d4d" }}>💣 Blast</h3>
-      <ul>
-        <li>Thermal Radius: {impactData.blast?.thermal_radius_km} km</li>
-        <li>
-          1psi Damage Radius: {impactData.blast?.blast_rings_km?.["1psi_km"]} km
-        </li>
-        <li>
-          5psi Severe Radius: {impactData.blast?.blast_rings_km?.["5psi_km"]} km
-        </li>
-        <li>
-          10psi Fatal Radius: {impactData.blast?.blast_rings_km?.["10psi_km"]}{" "}
-          km
-        </li>
-      </ul>
-
-      {/* Seismic & Tsunami */}
-      <h3 style={{ marginTop: "15px", color: "#66ff99" }}>
-        🌪️ Seismic & Tsunami
-      </h3>
-      <ul>
-        <li>Magnitude: {impactData.seismic?.seismic_magnitude}</li>
-        <li>Radius: {impactData.seismic?.seismic_radius_km} km</li>
-        <li>Tsunami Height: {impactData.tsunami?.tsunami_max_coastal_m} m</li>
-        <li>Tsunami Deaths: {impactData.tsunami?.tsunami_deaths_estimate}</li>
-      </ul>
-
-      {/* Casualties */}
-      <h3 style={{ marginTop: "15px", color: "#ff6666" }}>☠️ Casualties</h3>
-      <ul>
-        <li>Deaths (low): {impactData.casualties?.deaths_estimate_low}</li>
-        <li>Deaths (med): {impactData.casualties?.deaths_estimate_med}</li>
-        <li>Deaths (high): {impactData.casualties?.deaths_estimate_high}</li>
-        <li>Injuries (med): {impactData.casualties?.injuries_estimate_med}</li>
-      </ul>
-
-      {/* Infrastructure */}
-      <h3 style={{ marginTop: "15px", color: "#ffaa00" }}>🏗️ Infrastructure</h3>
-      <ul>
-        <li>
-          Buildings Destroyed:{" "}
-          {impactData.infrastructure?.buildings_destroyed_percent}%
-        </li>
-        <li>Roads Lost: {impactData.infrastructure?.roads_destroyed_km} km</li>
-        <li>Bridges Lost: {impactData.infrastructure?.bridges_destroyed}</li>
-        <li>Airports Lost: {impactData.infrastructure?.airports_destroyed}</li>
-      </ul>
-
-      {/* Environment */}
-      <h3 style={{ marginTop: "15px", color: "#88ccff" }}>🌡️ Environmental</h3>
-      <ul>
-        <li>Soot: {impactData.environmental?.soot_megatonnes} Mt</li>
-        <li>Dust: {impactData.environmental?.dust_megatonnes} Mt</li>
-        <li>
-          Global Temp Drop: {impactData.environmental?.global_temp_drop_c} °C
-        </li>
-        <li>
-          Ozone Loss: {impactData.environmental?.ozone_loss_percent_estimate}%
-        </li>
-      </ul>
-
-      {/* Economy */}
-      <h3 style={{ marginTop: "15px", color: "#ffcc00" }}>💰 Economy</h3>
-      <ul>
-        <li>
-          Loss: $
-          {impactData.economy_recovery?.economic_loss_usd?.toLocaleString()}
-        </li>
-        <li>
-          Recovery Time: {impactData.economy_recovery?.estimated_recovery_years}{" "}
-          years
-        </li>
-      </ul>
-
-      {/* Extras */}
-      <h3 style={{ marginTop: "15px", color: "#bbb" }}>🔬 Extras</h3>
-      <ul>
-        <li>Fireball Radius: {impactData.extras?.fireball_radius_km} km</li>
-        <li>Fallout Radius: {impactData.extras?.fallout_radius_km} km</li>
-        <li>
-          Secondary Fires: {impactData.extras?.number_of_secondary_fires_est}
-        </li>
-      </ul>
-    </div>
-  );
-}
-
 
 // Enhanced Info Panel with all backend data
 function InfoPanel({
@@ -230,25 +71,6 @@ function InfoPanel({
         color: "#e0e0e0",
       }}
     >
-      {/* Dropdown */}
-      <div style={{ marginBottom: "20px" }}>
-        <label htmlFor="meteor" style={{ color: "#4a9eff" }}>
-          Choose a meteor:
-        </label>
-        <select
-          id="meteor"
-          value={selectedMeteor}
-          onChange={handleSelectChange}
-          style={{ marginLeft: "10px", padding: "4px" }}
-        >
-          <option value="">--Select--</option>
-          <option value="433 Eros">433 Eros</option>
-          <option value="99942 Apophis">99942 Apophis</option>
-          <option value="101955 Bennu">101955 Bennu</option>
-        </select>
-        <p>Selected meteor: {selectedMeteor || "None"}</p>
-      </div>
-
       {/* Loading */}
       {!impactData && loadingImpact && (
         <div style={{ textAlign: "center", color: "#4a9eff" }}>
@@ -622,6 +444,25 @@ function InfoPanel({
           </div>
         </>
       )}
+
+      {/* Dropdown */}
+      <div style={{ marginBottom: "20px" }}>
+        <label htmlFor="meteor" style={{ color: "#4a9eff" }}>
+          Choose a meteor:
+        </label>
+        <select
+          id="meteor"
+          value={selectedMeteor}
+          onChange={handleSelectChange}
+          style={{ marginLeft: "10px", padding: "4px" }}
+        >
+          <option value="">--Select--</option>
+          <option value="433 Eros">433 Eros</option>
+          <option value="99942 Apophis">99942 Apophis</option>
+          <option value="101955 Bennu">101955 Bennu</option>
+        </select>
+        <p>Selected meteor: {selectedMeteor || "None"}</p>
+      </div>
     </div>
   );
 }
@@ -744,7 +585,6 @@ function EarthMarker({ lat, lon, size, startDistance = 5, speed = 0.02 }) {
   );
 }
 
-
 // Earth 3D Model
 function EarthModel({ earthRef }) {
   const { scene } = useGLTF("Models/earth.glb");
@@ -778,7 +618,6 @@ function SimulationScene({ markerLat, markerLon, markerSize, loadingImpact }) {
         {markerLat != null && markerLon != null && (
           <>
             <EarthMarker lat={markerLat} lon={markerLon} size={markerSize} />
-
 
             {loadingImpact && (
               <mesh position={latLonToVector3(markerLat, markerLon, 1.01)}>
@@ -840,26 +679,54 @@ function LoadingBar({ progress }) {
   );
 }
 
-/* =====================
-   Main Screen
-   ===================== */
-export default function SS({
-  showStats = true,
-  showGizmo = true,
-}) {
+// Main App Component
+export default function SS({ showStats = true, showGizmo = true }) {
   const [canvasLoaded, setCanvasLoaded] = useState(false);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [progress, setProgress] = useState(0);
   const [markerLat, setMarkerLat] = useState(40.7128);
   const [markerLon, setMarkerLon] = useState(-74.006);
 
+  // Meteor parameters
+  const [meteorDiameter, setMeteorDiameter] = useState(100);
+  const [velocity, setVelocity] = useState(20);
+  const [angle, setAngle] = useState(45);
+
+  // API state
+  const [impactData, setImpactData] = useState(null);
+  const [loadingImpact, setLoadingImpact] = useState(false);
+
   const mapRef = useRef();
   const mapBounds = [
     [85, -180],
     [-85, 180],
   ];
+  const fetchImpactByName = async (name) => {
+    setImpactData(null);
+    setLoadingImpact(true);
+    try {
+      const response = await fetch(
+        `${API_BASE}/impact_by_name?name=${encodeURIComponent(name)}`
+      );
+      if (!response.ok) throw new Error("Failed to fetch impact by name");
+      const data = await response.json();
 
-  // Simulate loading
+      if (data.error) return;
+
+      setMarkerLat(data.impact_data?.lat || markerLat);
+      setMarkerLon(data.impact_data?.lon || markerLon);
+      setMeteorDiameter(data.impact_data?.diameter_m || meteorDiameter);
+      setVelocity(data.impact_data?.velocity_km_s || velocity);
+      setAngle(data.impact_data?.angle_deg || angle);
+      setImpactData(data.impact_data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoadingImpact(false);
+    }
+  };
+
+  // Loading simulation
   useEffect(() => {
     let p = 0;
     const interval = setInterval(() => {
@@ -870,13 +737,42 @@ export default function SS({
     return () => clearInterval(interval);
   }, []);
 
+  // Map/canvas ready
   useEffect(() => {
     const timer = setTimeout(() => setCanvasLoaded(true), 1200);
     return () => clearTimeout(timer);
   }, []);
 
-  const isLoaded = canvasLoaded && mapLoaded && progress >= 100;
+  const isLoaded = canvasLoaded && progress >= 100;
 
+  // Fetch impact data from backend
+  useEffect(() => {
+    async function fetchImpact() {
+      // Clear previous data to trigger loading state
+      setImpactData(null);
+      setLoadingImpact(true);
+
+      try {
+        const data = await getImpact(
+          markerLat,
+          markerLon,
+          angle,
+          meteorDiameter,
+          velocity
+        );
+        setImpactData(data);
+      } catch (err) {
+        console.error("Failed to fetch impact data", err);
+        setImpactData(null);
+      } finally {
+        setLoadingImpact(false);
+      }
+    }
+
+    fetchImpact();
+  }, [markerLat, markerLon, meteorDiameter, velocity, angle]);
+
+  // Map click handler
   function MapClickHandler() {
     useMapEvents({
       click(e) {
@@ -901,15 +797,22 @@ export default function SS({
     <div
       style={{
         display: "flex",
-        height: "100vh",
-        width: "100vw",
+        height: "100%", // fill available space inside App container (not full viewport)
+        width: "100%",
         background: "#000",
         color: "#fff",
         fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
       }}
     >
       {/* Main Column: 3D + Map */}
-      <div style={{ flex: 3, display: "flex", flexDirection: "column" }}>
+      <div
+        style={{
+          flex: 3,
+          display: "flex",
+          flexDirection: "column",
+          minHeight: 0,
+        }}
+      >
         {/* Controls */}
         <div
           style={{
@@ -1004,19 +907,19 @@ export default function SS({
         {/* 3D Canvas */}
         <div
           style={{
-            flex: 1,
+            flex: 2, // give canvas more vertical space
             borderBottom: "1px solid #333",
             position: "relative",
+            minHeight: 0,
           }}
         >
           {showStats && <Stats />}
           <Canvas
             shadows
             camera={{ position: [5, 5, 5], fov: 60 }}
-            style={{
-              opacity: isLoaded ? 1 : 0.3,
-              transition: "opacity 0.5s",
-            }}
+            style={{ opacity: isLoaded ? 1 : 0.3, transition: "opacity 0.5s" }}
+            gl={{ antialias: true }}
+            dpr={[1, 2]}
           >
             <Suspense fallback={null}>
               <Environment preset="night" />
@@ -1036,7 +939,7 @@ export default function SS({
         </div>
 
         {/* Map */}
-        <div style={{ height: "40vh" }}>
+        <div style={{ flex: 1, minHeight: 0 }}>
           <MapContainer
             center={[markerLat, markerLon]}
             zoom={5}
@@ -1062,55 +965,17 @@ export default function SS({
         </div>
       </div>
 
-      {/* Sidebar */}
-      <div
-        style={{
-          flex: 1.2,
-          background: "#222",
-          padding: "20px",
-          overflowY: "auto",
-        }}
-      >
-        {/* Meteor Preview */}
-        <div
-          style={{
-            height: "200px",
-            border: "2px solid rgba(0, 0, 0, 0.3)",
-            backgroundColor: "#000000ff",
-            borderRadius: "12px",
-            marginBottom: "20px",
-          }}
-        >
-          <Canvas camera={{ position: [0, 0, 5], fov: 50 }}>
-            <ambientLight intensity={0.2} />
-            <directionalLight position={[0, 9, 2]} intensity={2} />
-            <Stars radius={300} depth={60} count={20000} factor={7} fade />
-            <Suspense fallback={null}>
-              <Meteor_pre_Model />
-            </Suspense>
-            <OrbitControls enableZoom={false} enableRotate={false} />
-          </Canvas>
-        </div>
-
-        {/* Info */}
-        <h2>💥 Explosion Info</h2>
-        <p>
-          <strong>Location:</strong> {markerLat.toFixed(4)}, {markerLon.toFixed(4)}
-        </p>
-        <p>
-          <strong>Radius:</strong> {explosion_radius / 1000} km
-        </p>
-        <p>Click map to change marker 📍</p>
-
-        <h2 style={{ marginTop: "20px", color: "#ffaa4d" }}>📊 Impact Data</h2>
-        <ul>
-          <li>Velocity: ~20 km/s 🚀</li>
-          <li>Energy: ~500 MT TNT 💣</li>
-          <li>Crater Size: ~1.2 km 🕳️</li>
-          <li>Shockwave Radius: ~20 km 🌪️</li>
-        </ul>
-      </div>
+      {/* Sidebar Info Panel */}
+      <InfoPanel
+        impactData={impactData}
+        loadingImpact={loadingImpact} // <-- add this
+        markerLat={markerLat}
+        markerLon={markerLon}
+        meteorDiameter={meteorDiameter}
+        velocity={velocity}
+        angle={angle}
+        onSelectMeteor={fetchImpactByName}
+      />
     </div>
   );
 }
-

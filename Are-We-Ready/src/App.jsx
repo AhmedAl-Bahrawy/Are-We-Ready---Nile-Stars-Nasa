@@ -44,11 +44,14 @@ function App() {
     <TimingProvider>
       <div
         id="canvas-container"
+        className="page-with-navbar"
         style={{
           position: "relative",
           width: "100vw",
-          height: isAboutPage ? "auto" : "100vh",
-          minHeight: isAboutPage ? "100vh" : "100vh",
+          // reserve navbar height when not on About page so content isn't covered
+          paddingTop: isAboutPage ? 0 : "70px",
+          height: isAboutPage ? "auto" : "calc(100vh - 70px)",
+          minHeight: isAboutPage ? "100vh" : "calc(100vh - 70px)",
           overflow: isAboutPage ? "visible" : "hidden",
         }}
       >
