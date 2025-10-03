@@ -659,7 +659,9 @@ function EarthMarker({ lat, lon, size, startDistance = 5, speed = 0.02 }) {
 
 // Earth 3D Model
 function EarthModel({ earthRef }) {
-  const { scene } = useGLTF("Models/earth.glb");
+  const { scene } = useGLTF(
+    "https://cdn.jsdelivr.net/gh/AhmedAl-Bahrawy/Are-We-Ready---Nile-Stars-Nasa-Models@main/earth.glb"
+  );
 
   useEffect(() => {
     if (earthRef.current) {
@@ -712,7 +714,9 @@ function SimulationScene({ markerLat, markerLon, markerSize, loadingImpact }) {
 }
 
 // Preload Earth model
-useGLTF.preload("Models/earth.glb");
+useGLTF.preload(
+  "https://cdn.jsdelivr.net/gh/AhmedAl-Bahrawy/Are-We-Ready---Nile-Stars-Nasa-Models@main/earth.glb"
+);
 
 // Loading progress bar
 function LoadingBar({ progress }) {
