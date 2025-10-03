@@ -39,6 +39,7 @@ function App() {
   }, [location.pathname]);
 
   const isAboutPage = location.pathname === "/About";
+  const isSimulationPage = location.pathname === "/Simulation";
 
   return (
     <TimingProvider>
@@ -48,10 +49,18 @@ function App() {
         style={{
           position: "relative",
           width: "100vw",
-          // reserve navbar height when not on About page so content isn't covered
-          paddingTop: isAboutPage ? 0 : "70px",
-          height: isAboutPage ? "auto" : "calc(100vh - 70px)",
-          minHeight: isAboutPage ? "100vh" : "calc(100vh - 70px)",
+          // reserve navbar height - Simulation page handles its own spacing
+          paddingTop: isAboutPage || isSimulationPage ? 0 : "70px",
+          height: isAboutPage
+            ? "auto"
+            : isSimulationPage
+            ? "100vh"
+            : "calc(100vh - 70px)",
+          minHeight: isAboutPage
+            ? "100vh"
+            : isSimulationPage
+            ? "100vh"
+            : "calc(100vh - 70px)",
           overflow: isAboutPage ? "visible" : "hidden",
         }}
       >

@@ -794,188 +794,222 @@ export default function SS({ showStats = true, showGizmo = true }) {
   }, [impactData]);
 
   return (
-    <div
-      style={{
-        display: "flex",
-        height: "100%", // fill available space inside App container (not full viewport)
-        width: "100%",
-        background: "#000",
-        color: "#fff",
-        fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-      }}
-    >
-      {/* Main Column: 3D + Map */}
+    <div className="content-wrapper">
       <div
         style={{
-          flex: 3,
           display: "flex",
-          flexDirection: "column",
-          minHeight: 0,
+          height: "100%",
+          width: "100%",
+          background: "#000",
+          color: "#fff",
+          fontFamily:
+            "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+          overflow: "hidden",
         }}
       >
-        {/* Controls */}
+        {/* Main Column: 3D + Map */}
         <div
+          className="main-content"
           style={{
-            padding: "15px",
-            background: "linear-gradient(180deg, #0a0e1a 0%, #151925 100%)",
-            borderBottom: "1px solid #2a2e3e",
+            flex: "1 1 70%",
+            display: "flex",
+            flexDirection: "column",
+            minHeight: 0,
+            minWidth: 0,
+            overflow: "hidden",
           }}
         >
-          <h1
-            style={{ margin: "0 0 15px 0", fontSize: "22px", color: "#ff6b35" }}
-          >
-            Meteor Impact Simulator
-          </h1>
-
+          {/* Controls Section */}
           <div
             style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
-              gap: "15px",
+              padding: "20px",
+              background: "linear-gradient(180deg, #0a0e1a 0%, #151925 100%)",
+              borderBottom: "1px solid #2a2e3e",
+              position: "relative",
+              overflow: "hidden",
             }}
           >
-            <div>
-              <label
-                style={{
-                  display: "block",
-                  marginBottom: "5px",
-                  fontSize: "12px",
-                  color: "#aaa",
-                }}
-              >
-                Diameter: {meteorDiameter} m
-              </label>
-              <input
-                type="range"
-                min="10"
-                max="10000"
-                step="10"
-                value={meteorDiameter}
-                onChange={(e) => setMeteorDiameter(Number(e.target.value))}
-                style={{ width: "100%" }}
-              />
+            {/* Loading Bar at the top of controls */}
+            <div style={{ position: "absolute", top: 0, left: 0, right: 0 }}>
+              <LoadingBar progress={progress} loadingImpact={loadingImpact} />
             </div>
 
-            <div>
-              <label
-                style={{
-                  display: "block",
-                  marginBottom: "5px",
-                  fontSize: "12px",
-                  color: "#aaa",
-                }}
-              >
-                Velocity: {velocity} km/s
-              </label>
-              <input
-                type="range"
-                min="11"
-                max="72"
-                step="1"
-                value={velocity}
-                onChange={(e) => setVelocity(Number(e.target.value))}
-                style={{ width: "100%" }}
-              />
-            </div>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+                gap: "20px",
+                padding: "0 10px",
+              }}
+            >
+              <div>
+                <label
+                  style={{
+                    display: "block",
+                    marginBottom: "8px",
+                    fontSize: "14px",
+                    color: "#bbb",
+                    fontWeight: "500",
+                  }}
+                >
+                  Diameter: {meteorDiameter} m
+                </label>
+                <input
+                  type="range"
+                  min="10"
+                  max="10000"
+                  step="10"
+                  value={meteorDiameter}
+                  onChange={(e) => setMeteorDiameter(Number(e.target.value))}
+                  style={{
+                    width: "100%",
+                    height: "6px",
+                    borderRadius: "3px",
+                    WebkitAppearance: "none",
+                    background:
+                      "linear-gradient(90deg, #4a9eff 0%, #ff6b35 100%)",
+                  }}
+                />
+              </div>
 
-            <div>
-              <label
-                style={{
-                  display: "block",
-                  marginBottom: "5px",
-                  fontSize: "12px",
-                  color: "#aaa",
-                }}
-              >
-                Angle: {angle}°
-              </label>
-              <input
-                type="range"
-                min="15"
-                max="90"
-                step="5"
-                value={angle}
-                onChange={(e) => setAngle(Number(e.target.value))}
-                style={{ width: "100%" }}
-              />
+              <div>
+                <label
+                  style={{
+                    display: "block",
+                    marginBottom: "8px",
+                    fontSize: "14px",
+                    color: "#bbb",
+                    fontWeight: "500",
+                  }}
+                >
+                  Velocity: {velocity} km/s
+                </label>
+                <input
+                  type="range"
+                  min="11"
+                  max="72"
+                  step="1"
+                  value={velocity}
+                  onChange={(e) => setVelocity(Number(e.target.value))}
+                  style={{
+                    width: "100%",
+                    height: "6px",
+                    borderRadius: "3px",
+                    WebkitAppearance: "none",
+                    background:
+                      "linear-gradient(90deg, #4a9eff 0%, #ff6b35 100%)",
+                  }}
+                />
+              </div>
+
+              <div>
+                <label
+                  style={{
+                    display: "block",
+                    marginBottom: "8px",
+                    fontSize: "14px",
+                    color: "#bbb",
+                    fontWeight: "500",
+                  }}
+                >
+                  Angle: {angle}°
+                </label>
+                <input
+                  type="range"
+                  min="15"
+                  max="90"
+                  step="5"
+                  value={angle}
+                  onChange={(e) => setAngle(Number(e.target.value))}
+                  style={{
+                    width: "100%",
+                    height: "6px",
+                    borderRadius: "3px",
+                    WebkitAppearance: "none",
+                    background:
+                      "linear-gradient(90deg, #4a9eff 0%, #ff6b35 100%)",
+                  }}
+                />
+              </div>
             </div>
+          </div>
+
+          {/* 3D Canvas */}
+          <div
+            style={{
+              flex: 2, // give canvas more vertical space
+              borderBottom: "1px solid #333",
+              position: "relative",
+              minHeight: 0,
+            }}
+          >
+            {showStats && <Stats />}
+            <Canvas
+              shadows
+              camera={{ position: [5, 5, 5], fov: 60 }}
+              style={{
+                opacity: isLoaded ? 1 : 0.3,
+                transition: "opacity 0.5s",
+              }}
+              gl={{ antialias: true }}
+              dpr={[1, 2]}
+            >
+              <Suspense fallback={null}>
+                <Environment preset="night" />
+                {showGizmo && (
+                  <GizmoHelper alignment="bottom-right" margin={[80, 80]}>
+                    <GizmoViewport />
+                  </GizmoHelper>
+                )}
+                <SimulationScene
+                  markerLat={markerLat}
+                  markerLon={markerLon}
+                  markerSize={markerSize}
+                  loadingImpact={loadingImpact}
+                />
+              </Suspense>
+            </Canvas>
+          </div>
+
+          {/* Map */}
+          <div style={{ flex: 1, minHeight: 0 }}>
+            <MapContainer
+              center={[markerLat, markerLon]}
+              zoom={5}
+              minZoom={2}
+              maxZoom={18}
+              worldCopyJump={false}
+              maxBounds={mapBounds}
+              style={{ height: "100%", width: "100%" }}
+              whenReady={() => setMapLoaded(true)}
+              ref={mapRef}
+            >
+              <TileLayer
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                attribution="&copy; OpenStreetMap contributors"
+              />
+              <ExplosionCircles
+                center={[markerLat, markerLon]}
+                impactData={loadingImpact ? null : impactData}
+              />
+
+              <MapClickHandler />
+            </MapContainer>
           </div>
         </div>
 
-        <LoadingBar progress={progress} />
-
-        {/* 3D Canvas */}
-        <div
-          style={{
-            flex: 2, // give canvas more vertical space
-            borderBottom: "1px solid #333",
-            position: "relative",
-            minHeight: 0,
-          }}
-        >
-          {showStats && <Stats />}
-          <Canvas
-            shadows
-            camera={{ position: [5, 5, 5], fov: 60 }}
-            style={{ opacity: isLoaded ? 1 : 0.3, transition: "opacity 0.5s" }}
-            gl={{ antialias: true }}
-            dpr={[1, 2]}
-          >
-            <Suspense fallback={null}>
-              <Environment preset="night" />
-              {showGizmo && (
-                <GizmoHelper alignment="bottom-right" margin={[80, 80]}>
-                  <GizmoViewport />
-                </GizmoHelper>
-              )}
-              <SimulationScene
-                markerLat={markerLat}
-                markerLon={markerLon}
-                markerSize={markerSize}
-                loadingImpact={loadingImpact}
-              />
-            </Suspense>
-          </Canvas>
-        </div>
-
-        {/* Map */}
-        <div style={{ flex: 1, minHeight: 0 }}>
-          <MapContainer
-            center={[markerLat, markerLon]}
-            zoom={5}
-            minZoom={2}
-            maxZoom={18}
-            worldCopyJump={false}
-            maxBounds={mapBounds}
-            style={{ height: "100%", width: "100%" }}
-            whenReady={() => setMapLoaded(true)}
-            ref={mapRef}
-          >
-            <TileLayer
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              attribution="&copy; OpenStreetMap contributors"
-            />
-            <ExplosionCircles
-              center={[markerLat, markerLon]}
-              impactData={loadingImpact ? null : impactData}
-            />
-
-            <MapClickHandler />
-          </MapContainer>
-        </div>
+        {/* Sidebar Info Panel */}
+        <InfoPanel
+          impactData={impactData}
+          loadingImpact={loadingImpact} // <-- add this
+          markerLat={markerLat}
+          markerLon={markerLon}
+          meteorDiameter={meteorDiameter}
+          velocity={velocity}
+          angle={angle}
+          onSelectMeteor={fetchImpactByName}
+        />
       </div>
-
-      {/* Sidebar Info Panel */}
-      <InfoPanel
-        impactData={impactData}
-        loadingImpact={loadingImpact} // <-- add this
-        markerLat={markerLat}
-        markerLon={markerLon}
-        meteorDiameter={meteorDiameter}
-        velocity={velocity}
-        angle={angle}
-        onSelectMeteor={fetchImpactByName}
-      />
     </div>
   );
 }
