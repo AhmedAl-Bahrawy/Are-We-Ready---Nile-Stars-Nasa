@@ -1,4 +1,4 @@
 import IntroScene from "./IntroScene";
-import SimulationScene from "./SimulationScene";
+import Screen from "./Screen";
 
-export  { IntroScene, SimulationScene };
+export  { IntroScene,Screen };
