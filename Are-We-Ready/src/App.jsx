@@ -1,8 +1,7 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import { TimingProvider } from "./contexts/TimingContext";
-import IntroScene from "./components/Scenes/IntroScene";
-import Screen from "./components/Scenes/Screen"; 
 import { IntroOverlay } from "./components/UI";
+import { IS, SS } from "./components/Scenes";
 
 function App() {
   return (
@@ -12,10 +11,10 @@ function App() {
         <Route path="/" element={<Navigate to="/Intro" />} />
 
         {/* Intro 3D Scene */}
-        <Route path="/Intro" element={<IntroScene />} />
+        <Route path="/Intro" element={<IS />} />
 
         {/* Simulation page (3D + DOM map + panels) */}
-        <Route path="/Screen" element={<Screen />} />
+        <Route path="/Simulation" element={<SS />} />
       </Routes>
 
       {/* UI overlay that should always be visible */}
