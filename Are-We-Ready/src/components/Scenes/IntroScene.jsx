@@ -28,7 +28,7 @@ function IntroSceneContent() {
   );
 }
 
-export default function IS() {
+export default function IS() { 
   return (
     <Canvas shadows camera={{ position: [5, 5, 5], fov: 60 }}>
       <Suspense fallback={null}>
