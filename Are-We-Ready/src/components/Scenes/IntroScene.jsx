@@ -1,11 +1,13 @@
-import { Suspense } from "react";
-import { OrbitControls, Environment } from "@react-three/drei";
+import { Suspense, useRef } from "react";
+import { Environment } from "@react-three/drei";
 import { IntroSceneObjects } from "../Objects";
 import { Stars } from "@react-three/drei";
 import { Nebula, Particles } from "../Effects";
 import { Canvas } from "@react-three/fiber";
+import { CameraController } from "../Controllers";
 
-function IntroSceneContent() {
+function IntroSceneContent({ onMouseDown }) {
+  const spaceshipRef = useRef();
   return (
     <>
       <Stars
@@ -26,7 +28,8 @@ function IntroSceneContent() {
       />
 
       <Particles count={4000} />
-      <IntroSceneObjects />
+      <IntroSceneObjects ref={spaceshipRef} onMouseDown={onMouseDown} />
+      <CameraController spaceshipRef={spaceshipRef} mode="overview" />
 
       <ambientLight intensity={0.5} />
       <directionalLight
@@ -40,15 +43,15 @@ function IntroSceneContent() {
   );
 }
 
-export default function IS() {
+export default function IS({ onMouseDown }) {
   return (
     <Canvas>
       <Environment preset="city" />
-      <OrbitControls enablePan={true} enableZoom={true} enableRotate={true} />
+
       <Suspense fallback={null}>
         <Environment preset="city" />
-        <OrbitControls enablePan enableZoom enableRotate />
-        <IntroSceneContent />
+
+        <IntroSceneContent onMouseDown={onMouseDown} />
       </Suspense>
     </Canvas>
   );

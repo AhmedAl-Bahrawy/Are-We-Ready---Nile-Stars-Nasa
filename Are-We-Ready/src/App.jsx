@@ -1,32 +1,36 @@
-import { OrbitControls, Environment } from "@react-three/drei";
-import { Suspense } from "react";
+import { Suspense, useCallback } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { TimingProvider } from "./contexts/TimingContext";
 import { IS, SS } from "./components/Scenes";
 import { IntroOverlay } from "./components/UI";
 
-function SceneContent() {
+function SceneContent({ onMouseDown }) {
   return (
     <Suspense fallback={null}>
       <Routes>
         <Route path="/" element={<Navigate to="/Intro" />} />
-        <Route path="/Intro" element={<IS />} />
-        <Route path="/Simulation" element={<SS />} />
+        <Route path="/Intro" element={<IS onMouseDown={onMouseDown} />} />
+        <Route path="/Simulation" element={<SS onMouseDown={onMouseDown} />} />
       </Routes>
     </Suspense>
   );
 }
 
 function App() {
+  const handleMouseDown = useCallback(() => {
+    // This function will be called by both components
+    // The specific logic is handled within each component
+  }, []);
+
   return (
     <TimingProvider>
       <div
         id="canvas-container"
         style={{ position: "relative", width: "100vw", height: "100vh" }}
       >
-        <SceneContent />
+        <SceneContent onMouseDown={handleMouseDown} />
       </div>
-      <IntroOverlay />
+      <IntroOverlay onMouseDown={handleMouseDown} />
     </TimingProvider>
   );
 }
