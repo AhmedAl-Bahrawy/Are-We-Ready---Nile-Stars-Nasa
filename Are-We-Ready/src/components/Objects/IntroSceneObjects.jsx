@@ -5,6 +5,9 @@ export default function IntroSceneObjects() {
   return (
     <>
       <group>
+        <SolarSystem />
+      </group>
+      <group>
         <SpaceshipController>
           <Spaceship />
         </SpaceshipController>
