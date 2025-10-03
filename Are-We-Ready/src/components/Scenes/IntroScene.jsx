@@ -1,6 +1,7 @@
 import { IntroSceneObjects } from "../Objects";
 import { Stars } from "@react-three/drei";
 import { Nebula, Particles } from "../Effects";
+import React from "react";
 
 export default function IntroScene() {
   return (
@@ -199,7 +200,7 @@ export default function IntroScene() {
       <Particles count={4000} />
 
       {/* Scene Objects */}
-      <IntroSceneObjects />
+      <MemoizedIntroSceneObjects />
 
       {/* Lighting */}
       <ambientLight intensity={0.5} />
@@ -213,3 +214,10 @@ export default function IntroScene() {
     </>
   );
 }
+const MemoizedIntroSceneObjects = React.memo(
+  IntroSceneObjects,
+  (prevProps, nextProps) => {
+    // Only re-render if spaceshipRef actually changes (which it shouldn't)
+    return prevProps.spaceshipRef === nextProps.spaceshipRef;
+  }
+);
