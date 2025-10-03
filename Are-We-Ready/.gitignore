@@ -1,3 +1,12 @@
+# Ignore all model and image files
+*.glb
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.bmp
+*.svg
+
 # Dependencies
 node_modules/
 npm-debug.log*
@@ -36,3 +45,7 @@ coverage/
 # Temporary files
 .tmp/
 .temp/
+
+# Project folders to ignore
+Models/
+public/
