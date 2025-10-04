@@ -111,14 +111,59 @@ const Spaceship = forwardRef((props, ref) => {
     []
   );
 
+  // Debug node names
+  useEffect(() => {
+    if (nodes) {
+      console.log("🔍 Model Details:", {
+        nodes: Object.keys(nodes).map((key) => ({
+          name: key,
+          type: nodes[key].type,
+          geometry: nodes[key].geometry ? true : false,
+        })),
+        materials: Object.keys(materials),
+        sceneTree: Object.keys(nodes).map((key) => ({
+          name: key,
+          children: nodes[key].children?.length || 0,
+        })),
+      });
+    }
+  }, [nodes, materials]);
+
+  // Find the main spaceship mesh
+  const mainNode = useMemo(() => {
+    // First try the known name
+    if (nodes.Spaceship_BarbaraTheBee) {
+      return nodes.Spaceship_BarbaraTheBee;
+    }
+    // Then try to find any mesh
+    return Object.values(nodes).find(
+      (node) => node.geometry && node.type === "Mesh"
+    );
+  }, [nodes]);
+
+  // Get the first available material if Atlas doesn't exist
+  const mainMaterial = materials.Atlas || Object.values(materials)[0];
+
+  if (!mainNode) {
+    console.error("❌ No suitable mesh found in the model");
+    return null;
+  }
+
   return (
-    <group {...props} ref={ref} dispose={null}>
+    <group {...props} ref={ref}>
       {/* Main spaceship mesh */}
-      <mesh
-        geometry={nodes.Spaceship_BarbaraTheBee?.geometry}
-        material={materials.Atlas}
-        scale={100}
-      />
+      <group scale={1} rotation={[0, 0, 0]}>
+        <mesh
+          name="Spaceship_BarbaraTheBee"
+          geometry={mainNode.geometry}
+          material={mainMaterial}
+          position={[0, 0, 0]}
+          rotation={[0, 0, 0]}
+          scale={1}
+        >
+          <primitive object={mainNode} />
+        </mesh>
+      </group>
       <group>
         {/* Main Engine Exhausts - Large and Powerful */}
         {engineConfigs.mainEngines.map((engine) => (
