@@ -3,13 +3,12 @@ import { useGLTF } from "@react-three/drei";
 import { FireParticles } from "../Effects";
 import * as THREE from "three";
 
-// Use local path for consistent loading in both development and production
-const MODEL_PATH =
-  "public/models/Spaceship.glb" ??
+// Use the same CDN approach as SolarSystem for consistency
+const GLTF_LOADER =
   "https://cdn.jsdelivr.net/gh/AhmedAl-Bahrawy/Are-We-Ready---Nile-Stars-Nasa-Models@main/Spaceship.glb";
 
 const Spaceship = forwardRef((props, ref) => {
-  const { nodes, materials } = useGLTF(MODEL_PATH);
+  const { nodes, materials } = useGLTF(GLTF_LOADER);
 
   // Memoize engine configurations to prevent re-creation
   const engineConfigs = useMemo(
@@ -160,7 +159,7 @@ const Spaceship = forwardRef((props, ref) => {
 });
 
 // Preload the model
-useGLTF.preload(MODEL_PATH);
+useGLTF.preload(GLTF_LOADER);
 
 Spaceship.displayName = "Spaceship";
 
