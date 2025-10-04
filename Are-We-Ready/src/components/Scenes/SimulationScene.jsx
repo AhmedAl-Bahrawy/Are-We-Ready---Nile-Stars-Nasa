@@ -39,54 +39,27 @@ function MeteorModel() {
   return <primitive ref={ref} object={scene} scale={0.001} />;
 }
 
+
 // Enhanced Info Panel with all backend data
 function InfoPanel({
   impactData,
+  loadingImpact,
   markerLat,
   markerLon,
   meteorDiameter,
   velocity,
   angle,
+  onSelectMeteor,
 }) {
-  if (!impactData) {
-    return (
-      <div
-        style={{
-          flex: 1.2,
-          background: "linear-gradient(180deg, #0a0e1a 0%, #1a1e2e 100%)",
-          padding: "20px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          color: "#4a9eff",
-          flexDirection: "column",
-        }}
-      >
-        <div
-          style={{
-            width: "50px",
-            height: "50px",
-            border: "6px solid #4a9eff",
-            borderTop: "6px solid transparent",
-            borderRadius: "50%",
-            marginBottom: "15px",
-            animation: "spin 1s linear infinite",
-          }}
-        />
-        <p>Loading impact data...</p>
+  const [selectedMeteor, setSelectedMeteor] = useState("");
 
-        <style>
-          {`
-          @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-          }
-        `}
-        </style>
-      </div>
-    );
-  }
-
+  const handleSelectChange = async (e) => {
+    const name = e.target.value;
+    setSelectedMeteor(name);
+    if (name) {
+      await onSelectMeteor(name); // fetch impact data by name
+    }
+  };
   return (
     <div
       style={{
@@ -99,272 +72,398 @@ function InfoPanel({
         color: "#e0e0e0",
       }}
     >
-      <h2 style={{ margin: "0 0 20px 0", color: "#ff6b35", fontSize: "22px" }}>
-        💥 Impact Analysis
-      </h2>
-
-      <div
-        style={{
-          marginBottom: "15px",
-          padding: "12px",
-          background: "#1a2332",
-          borderRadius: "8px",
-        }}
-      >
-        <h3 style={{ margin: "0 0 8px 0", color: "#4a9eff", fontSize: "15px" }}>
-          📍 Location
-        </h3>
-        <p style={{ margin: "5px 0" }}>
-          <strong>Coordinates:</strong> {markerLat.toFixed(4)}°,{" "}
-          {markerLon.toFixed(4)}°
-        </p>
-        <p style={{ margin: "5px 0" }}>
-          <strong>Diameter:</strong> {meteorDiameter} m
-        </p>
-        <p style={{ margin: "5px 0" }}>
-          <strong>Velocity:</strong> {velocity} km/s
-        </p>
-        <p style={{ margin: "5px 0" }}>
-          <strong>Angle:</strong> {angle}°
-        </p>
+      {/* Dropdown */}
+      <div style={{ marginBottom: "20px" }}>
+        <label htmlFor="meteor" style={{ color: "#4a9eff" }}>
+          Choose a meteor:
+        </label>
+        <select
+          id="meteor"
+          value={selectedMeteor}
+          onChange={handleSelectChange}
+          style={{ marginLeft: "10px", padding: "4px" }}
+        >
+          <option value="">--Select--</option>
+          <option value="433 Eros">433 Eros</option>
+          <option value="99942 Apophis">99942 Apophis</option>
+          <option value="101955 Bennu">101955 Bennu</option>
+        </select>
+        <p>Selected meteor: {selectedMeteor || "None"}</p>
       </div>
 
-      {/* Physics */}
-      <div
-        style={{
-          marginBottom: "15px",
-          padding: "12px",
-          background: "#1a2332",
-          borderRadius: "8px",
-        }}
-      >
-        <h3 style={{ margin: "0 0 8px 0", color: "#4af", fontSize: "15px" }}>
-          ⚛️ Physics
-        </h3>
-        <p style={{ margin: "5px 0" }}>
-          Mass: {impactData.physics?.mass_kg?.toExponential(2)} kg
-        </p>
-        <p style={{ margin: "5px 0" }}>
-          Velocity: {impactData.physics?.entry_velocity_km_s} km/s
-        </p>
-        <p style={{ margin: "5px 0" }}>
-          Energy: {impactData.physics?.kinetic_energy_mt_tnt?.toFixed(2)} MT TNT
-        </p>
-        <p style={{ margin: "5px 0" }}>
-          Airburst Altitude:{" "}
-          {impactData.physics?.airburst_altitude_m?.toFixed(0)} m
-        </p>
-        <p style={{ margin: "5px 0" }}>
-          Sonic Boom Radius: {impactData.physics?.sonic_boom_radius_km} km
-        </p>
-      </div>
+      {/* Loading */}
+      {!impactData && loadingImpact && (
+        <div style={{ textAlign: "center", color: "#4a9eff" }}>
+          <div
+            style={{
+              width: "50px",
+              height: "50px",
+              border: "6px solid #4a9eff",
+              borderTop: "6px solid transparent",
+              borderRadius: "50%",
+              margin: "15px auto",
+              animation: "spin 1s linear infinite",
+            }}
+          />
+          <p>Loading impact data...</p>
+          <style>
+            {`@keyframes spin {0% {transform: rotate(0deg);} 100% {transform: rotate(360deg);}}`}
+          </style>
+        </div>
+      )}
 
-      {/* Crater */}
-      <div
-        style={{
-          marginBottom: "15px",
-          padding: "12px",
-          background: "#2a1a1a",
-          borderRadius: "8px",
-        }}
-      >
-        <h3 style={{ margin: "0 0 8px 0", color: "#ffaa4d", fontSize: "15px" }}>
-          🕳️ Crater
-        </h3>
-        <p style={{ margin: "5px 0" }}>
-          Diameter: {impactData.crater?.crater_diameter_km} km
-        </p>
-        <p style={{ margin: "5px 0" }}>
-          Depth: {impactData.crater?.crater_depth_m} m
-        </p>
-        <p style={{ margin: "5px 0" }}>
-          Ejecta Volume: {impactData.crater?.ejecta_volume_km3} km³
-        </p>
-      </div>
+      {/* Show data */}
+      {impactData && (
+        <>
+          <h2
+            style={{ margin: "0 0 20px 0", color: "#ff6b35", fontSize: "22px" }}
+          >
+            💥 Impact Analysis
+          </h2>
+          <div
+            style={{
+              flex: 1.2,
+              background: "linear-gradient(180deg, #0a0e1a 0%, #1a1e2e 100%)",
+              padding: "20px",
+              overflowY: "auto",
+              fontSize: "13px",
+              lineHeight: "1.6em",
+              color: "#e0e0e0",
+            }}
+          >
+            <h2
+              style={{
+                margin: "0 0 20px 0",
+                color: "#ff6b35",
+                fontSize: "22px",
+              }}
+            >
+              💥 Impact Analysis
+            </h2>
 
-      {/* Blast */}
-      <div
-        style={{
-          marginBottom: "15px",
-          padding: "12px",
-          background: "#1a2332",
-          borderRadius: "8px",
-        }}
-      >
-        <h3 style={{ margin: "0 0 8px 0", color: "#ff4d4d", fontSize: "15px" }}>
-          💣 Blast Effects
-        </h3>
-        <p style={{ margin: "5px 0" }}>
-          Thermal Radius: {impactData.blast?.thermal_radius_km} km
-        </p>
-        <p style={{ margin: "5px 0" }}>
-          1 psi Damage: {impactData.blast?.blast_rings_km?.["1psi_km"]} km
-        </p>
-        <p style={{ margin: "5px 0" }}>
-          5 psi Severe: {impactData.blast?.blast_rings_km?.["5psi_km"]} km
-        </p>
-        <p style={{ margin: "5px 0" }}>
-          10 psi Fatal: {impactData.blast?.blast_rings_km?.["10psi_km"]} km
-        </p>
-        <p style={{ margin: "5px 0" }}>
-          20 psi Total: {impactData.blast?.blast_rings_km?.["20psi_km"]} km
-        </p>
-      </div>
+            <div
+              style={{
+                marginBottom: "15px",
+                padding: "12px",
+                background: "#1a2332",
+                borderRadius: "8px",
+              }}
+            >
+              <h3
+                style={{
+                  margin: "0 0 8px 0",
+                  color: "#4a9eff",
+                  fontSize: "15px",
+                }}
+              >
+                📍 Location
+              </h3>
+              <p style={{ margin: "5px 0" }}>
+                <strong>Coordinates:</strong> {markerLat.toFixed(4)}°,{" "}
+                {markerLon.toFixed(4)}°
+              </p>
+              <p style={{ margin: "5px 0" }}>
+                <strong>Diameter:</strong> {meteorDiameter} m
+              </p>
+              <p style={{ margin: "5px 0" }}>
+                <strong>Velocity:</strong> {velocity} km/s
+              </p>
+              <p style={{ margin: "5px 0" }}>
+                <strong>Angle:</strong> {angle}°
+              </p>
+            </div>
 
-      {/* Seismic & Tsunami */}
-      <div
-        style={{
-          marginBottom: "15px",
-          padding: "12px",
-          background: "#1a2332",
-          borderRadius: "8px",
-        }}
-      >
-        <h3 style={{ margin: "0 0 8px 0", color: "#66ff99", fontSize: "15px" }}>
-          🌊 Seismic & Tsunami
-        </h3>
-        <p style={{ margin: "5px 0" }}>
-          Seismic Magnitude: {impactData.seismic?.seismic_magnitude}
-        </p>
-        <p style={{ margin: "5px 0" }}>
-          Seismic Radius: {impactData.seismic?.seismic_radius_km} km
-        </p>
-        <p style={{ margin: "5px 0" }}>
-          Tsunami Height: {impactData.tsunami?.tsunami_max_coastal_m} m
-        </p>
-        <p style={{ margin: "5px 0" }}>
-          Tsunami Deaths:{" "}
-          {impactData.tsunami?.tsunami_deaths_estimate?.toLocaleString()}
-        </p>
-      </div>
+            {/* Physics */}
+            <div
+              style={{
+                marginBottom: "15px",
+                padding: "12px",
+                background: "#1a2332",
+                borderRadius: "8px",
+              }}
+            >
+              <h3
+                style={{ margin: "0 0 8px 0", color: "#4af", fontSize: "15px" }}
+              >
+                ⚛️ Physics
+              </h3>
+              <p style={{ margin: "5px 0" }}>
+                Mass: {impactData.physics?.mass_kg?.toExponential(2)} kg
+              </p>
+              <p style={{ margin: "5px 0" }}>
+                Velocity: {impactData.physics?.entry_velocity_km_s} km/s
+              </p>
+              <p style={{ margin: "5px 0" }}>
+                Energy: {impactData.physics?.kinetic_energy_mt_tnt?.toFixed(2)}{" "}
+                MT TNT
+              </p>
+              <p style={{ margin: "5px 0" }}>
+                Airburst Altitude:{" "}
+                {impactData.physics?.airburst_altitude_m?.toFixed(0)} m
+              </p>
+              <p style={{ margin: "5px 0" }}>
+                Sonic Boom Radius: {impactData.physics?.sonic_boom_radius_km} km
+              </p>
+            </div>
 
-      {/* Casualties */}
-      <div
-        style={{
-          marginBottom: "15px",
-          padding: "12px",
-          background: "#2a1a1a",
-          borderRadius: "8px",
-        }}
-      >
-        <h3 style={{ margin: "0 0 8px 0", color: "#ff6666", fontSize: "15px" }}>
-          ☠️ Casualties
-        </h3>
-        <p style={{ margin: "5px 0" }}>
-          Deaths (low):{" "}
-          {impactData.casualties?.deaths_estimate_low?.toLocaleString()}
-        </p>
-        <p style={{ margin: "5px 0" }}>
-          Deaths (med):{" "}
-          {impactData.casualties?.deaths_estimate_med?.toLocaleString()}
-        </p>
-        <p style={{ margin: "5px 0" }}>
-          Deaths (high):{" "}
-          {impactData.casualties?.deaths_estimate_high?.toLocaleString()}
-        </p>
-        <p style={{ margin: "5px 0" }}>
-          Injuries (med):{" "}
-          {impactData.casualties?.injuries_estimate_med?.toLocaleString()}
-        </p>
-      </div>
+            {/* Crater */}
+            <div
+              style={{
+                marginBottom: "15px",
+                padding: "12px",
+                background: "#2a1a1a",
+                borderRadius: "8px",
+              }}
+            >
+              <h3
+                style={{
+                  margin: "0 0 8px 0",
+                  color: "#ffaa4d",
+                  fontSize: "15px",
+                }}
+              >
+                🕳️ Crater
+              </h3>
+              <p style={{ margin: "5px 0" }}>
+                Diameter: {impactData.crater?.crater_diameter_km} km
+              </p>
+              <p style={{ margin: "5px 0" }}>
+                Depth: {impactData.crater?.crater_depth_m} m
+              </p>
+              <p style={{ margin: "5px 0" }}>
+                Ejecta Volume: {impactData.crater?.ejecta_volume_km3} km³
+              </p>
+            </div>
 
-      {/* Infrastructure */}
-      <div
-        style={{
-          marginBottom: "15px",
-          padding: "12px",
-          background: "#1a2332",
-          borderRadius: "8px",
-        }}
-      >
-        <h3 style={{ margin: "0 0 8px 0", color: "#ffaa00", fontSize: "15px" }}>
-          🏗️ Infrastructure
-        </h3>
-        <p style={{ margin: "5px 0" }}>
-          Buildings Destroyed:{" "}
-          {impactData.infrastructure?.buildings_destroyed_percent}%
-        </p>
-        <p style={{ margin: "5px 0" }}>
-          Roads Lost: {impactData.infrastructure?.roads_destroyed_km} km
-        </p>
-        <p style={{ margin: "5px 0" }}>
-          Bridges Lost: {impactData.infrastructure?.bridges_destroyed}
-        </p>
-        <p style={{ margin: "5px 0" }}>
-          Airports Lost: {impactData.infrastructure?.airports_destroyed}
-        </p>
-      </div>
+            {/* Blast */}
+            <div
+              style={{
+                marginBottom: "15px",
+                padding: "12px",
+                background: "#1a2332",
+                borderRadius: "8px",
+              }}
+            >
+              <h3
+                style={{
+                  margin: "0 0 8px 0",
+                  color: "#ff4d4d",
+                  fontSize: "15px",
+                }}
+              >
+                💣 Blast Effects
+              </h3>
+              <p style={{ margin: "5px 0" }}>
+                Thermal Radius: {impactData.blast?.thermal_radius_km} km
+              </p>
+              <p style={{ margin: "5px 0" }}>
+                1 psi Damage: {impactData.blast?.blast_rings_km?.["1psi_km"]} km
+              </p>
+              <p style={{ margin: "5px 0" }}>
+                5 psi Severe: {impactData.blast?.blast_rings_km?.["5psi_km"]} km
+              </p>
+              <p style={{ margin: "5px 0" }}>
+                10 psi Fatal: {impactData.blast?.blast_rings_km?.["10psi_km"]}{" "}
+                km
+              </p>
+              <p style={{ margin: "5px 0" }}>
+                20 psi Total: {impactData.blast?.blast_rings_km?.["20psi_km"]}{" "}
+                km
+              </p>
+            </div>
 
-      {/* Environment */}
-      <div
-        style={{
-          marginBottom: "15px",
-          padding: "12px",
-          background: "#1a2332",
-          borderRadius: "8px",
-        }}
-      >
-        <h3 style={{ margin: "0 0 8px 0", color: "#88ccff", fontSize: "15px" }}>
-          🌡️ Environmental
-        </h3>
-        <p style={{ margin: "5px 0" }}>
-          Soot: {impactData.environmental?.soot_megatonnes} Mt
-        </p>
-        <p style={{ margin: "5px 0" }}>
-          Dust: {impactData.environmental?.dust_megatonnes} Mt
-        </p>
-        <p style={{ margin: "5px 0" }}>
-          Global Temp Drop: {impactData.environmental?.global_temp_drop_c} °C
-        </p>
-        <p style={{ margin: "5px 0" }}>
-          Ozone Loss: {impactData.environmental?.ozone_loss_percent_estimate}%
-        </p>
-      </div>
+            {/* Seismic & Tsunami */}
+            <div
+              style={{
+                marginBottom: "15px",
+                padding: "12px",
+                background: "#1a2332",
+                borderRadius: "8px",
+              }}
+            >
+              <h3
+                style={{
+                  margin: "0 0 8px 0",
+                  color: "#66ff99",
+                  fontSize: "15px",
+                }}
+              >
+                🌊 Seismic & Tsunami
+              </h3>
+              <p style={{ margin: "5px 0" }}>
+                Seismic Magnitude: {impactData.seismic?.seismic_magnitude}
+              </p>
+              <p style={{ margin: "5px 0" }}>
+                Seismic Radius: {impactData.seismic?.seismic_radius_km} km
+              </p>
+              <p style={{ margin: "5px 0" }}>
+                Tsunami Height: {impactData.tsunami?.tsunami_max_coastal_m} m
+              </p>
+              <p style={{ margin: "5px 0" }}>
+                Tsunami Deaths:{" "}
+                {impactData.tsunami?.tsunami_deaths_estimate?.toLocaleString()}
+              </p>
+            </div>
 
-      {/* Economy */}
-      <div
-        style={{
-          marginBottom: "15px",
-          padding: "12px",
-          background: "#1a2332",
-          borderRadius: "8px",
-        }}
-      >
-        <h3 style={{ margin: "0 0 8px 0", color: "#ffcc00", fontSize: "15px" }}>
-          💰 Economy
-        </h3>
-        <p style={{ margin: "5px 0" }}>
-          Loss: $
-          {impactData.economy_recovery?.economic_loss_usd?.toLocaleString()}
-        </p>
-        <p style={{ margin: "5px 0" }}>
-          Recovery Time: {impactData.economy_recovery?.estimated_recovery_years}{" "}
-          years
-        </p>
-      </div>
+            {/* Casualties */}
+            <div
+              style={{
+                marginBottom: "15px",
+                padding: "12px",
+                background: "#2a1a1a",
+                borderRadius: "8px",
+              }}
+            >
+              <h3
+                style={{
+                  margin: "0 0 8px 0",
+                  color: "#ff6666",
+                  fontSize: "15px",
+                }}
+              >
+                ☠️ Casualties
+              </h3>
+              <p style={{ margin: "5px 0" }}>
+                Deaths (low):{" "}
+                {impactData.casualties?.deaths_estimate_low?.toLocaleString()}
+              </p>
+              <p style={{ margin: "5px 0" }}>
+                Deaths (med):{" "}
+                {impactData.casualties?.deaths_estimate_med?.toLocaleString()}
+              </p>
+              <p style={{ margin: "5px 0" }}>
+                Deaths (high):{" "}
+                {impactData.casualties?.deaths_estimate_high?.toLocaleString()}
+              </p>
+              <p style={{ margin: "5px 0" }}>
+                Injuries (med):{" "}
+                {impactData.casualties?.injuries_estimate_med?.toLocaleString()}
+              </p>
+            </div>
 
-      {/* Extras */}
-      <div
-        style={{
-          marginBottom: "15px",
-          padding: "12px",
-          background: "#1a2332",
-          borderRadius: "8px",
-        }}
-      >
-        <h3 style={{ margin: "0 0 8px 0", color: "#bbb", fontSize: "15px" }}>
-          🔬 Additional Data
-        </h3>
-        <p style={{ margin: "5px 0" }}>
-          Fireball Radius: {impactData.extras?.fireball_radius_km} km
-        </p>
-        <p style={{ margin: "5px 0" }}>
-          Fallout Radius: {impactData.extras?.fallout_radius_km} km
-        </p>
-        <p style={{ margin: "5px 0" }}>
-          Secondary Fires: {impactData.extras?.number_of_secondary_fires_est}
-        </p>
-      </div>
+            {/* Infrastructure */}
+            <div
+              style={{
+                marginBottom: "15px",
+                padding: "12px",
+                background: "#1a2332",
+                borderRadius: "8px",
+              }}
+            >
+              <h3
+                style={{
+                  margin: "0 0 8px 0",
+                  color: "#ffaa00",
+                  fontSize: "15px",
+                }}
+              >
+                🏗️ Infrastructure
+              </h3>
+              <p style={{ margin: "5px 0" }}>
+                Buildings Destroyed:{" "}
+                {impactData.infrastructure?.buildings_destroyed_percent}%
+              </p>
+              <p style={{ margin: "5px 0" }}>
+                Roads Lost: {impactData.infrastructure?.roads_destroyed_km} km
+              </p>
+              <p style={{ margin: "5px 0" }}>
+                Bridges Lost: {impactData.infrastructure?.bridges_destroyed}
+              </p>
+              <p style={{ margin: "5px 0" }}>
+                Airports Lost: {impactData.infrastructure?.airports_destroyed}
+              </p>
+            </div>
+
+            {/* Environment */}
+            <div
+              style={{
+                marginBottom: "15px",
+                padding: "12px",
+                background: "#1a2332",
+                borderRadius: "8px",
+              }}
+            >
+              <h3
+                style={{
+                  margin: "0 0 8px 0",
+                  color: "#88ccff",
+                  fontSize: "15px",
+                }}
+              >
+                🌡️ Environmental
+              </h3>
+              <p style={{ margin: "5px 0" }}>
+                Soot: {impactData.environmental?.soot_megatonnes} Mt
+              </p>
+              <p style={{ margin: "5px 0" }}>
+                Dust: {impactData.environmental?.dust_megatonnes} Mt
+              </p>
+              <p style={{ margin: "5px 0" }}>
+                Global Temp Drop: {impactData.environmental?.global_temp_drop_c}{" "}
+                °C
+              </p>
+              <p style={{ margin: "5px 0" }}>
+                Ozone Loss:{" "}
+                {impactData.environmental?.ozone_loss_percent_estimate}%
+              </p>
+            </div>
+
+            {/* Economy */}
+            <div
+              style={{
+                marginBottom: "15px",
+                padding: "12px",
+                background: "#1a2332",
+                borderRadius: "8px",
+              }}
+            >
+              <h3
+                style={{
+                  margin: "0 0 8px 0",
+                  color: "#ffcc00",
+                  fontSize: "15px",
+                }}
+              >
+                💰 Economy
+              </h3>
+              <p style={{ margin: "5px 0" }}>
+                Loss: $
+                {impactData.economy_recovery?.economic_loss_usd?.toLocaleString()}
+              </p>
+              <p style={{ margin: "5px 0" }}>
+                Recovery Time:{" "}
+                {impactData.economy_recovery?.estimated_recovery_years} years
+              </p>
+            </div>
+
+            {/* Extras */}
+            <div
+              style={{
+                marginBottom: "15px",
+                padding: "12px",
+                background: "#1a2332",
+                borderRadius: "8px",
+              }}
+            >
+              <h3
+                style={{ margin: "0 0 8px 0", color: "#bbb", fontSize: "15px" }}
+              >
+                🔬 Additional Data
+              </h3>
+              <p style={{ margin: "5px 0" }}>
+                Fireball Radius: {impactData.extras?.fireball_radius_km} km
+              </p>
+              <p style={{ margin: "5px 0" }}>
+                Fallout Radius: {impactData.extras?.fallout_radius_km} km
+              </p>
+              <p style={{ margin: "5px 0" }}>
+                Secondary Fires:{" "}
+                {impactData.extras?.number_of_secondary_fires_est}
+              </p>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }
@@ -417,7 +516,7 @@ function ExplosionCircles({ center, impactData }) {
         <Circle
           key={i}
           center={center}
-          radius={circle.radius * 1000 * animation}
+          radius={circle.radius * 1000 * animation} // good
           pathOptions={{
             color: circle.color,
             fillColor: circle.color,
@@ -472,7 +571,7 @@ function EarthModel({ earthRef }) {
 }
 
 // 3D Scene
-function SimulationScene({ markerLat, markerLon, markerSize,loadingImpact  }) {
+function SimulationScene({ markerLat, markerLon, markerSize, loadingImpact }) {
   const earthRef = useRef();
 
   return (
@@ -574,6 +673,30 @@ export default function MeteorImpactSimulator({
     [85, -180],
     [-85, 180],
   ];
+  const fetchImpactByName = async (name) => {
+    setImpactData(null);
+    setLoadingImpact(true);
+    try {
+      const response = await fetch(
+        `${API_BASE}/impact_by_name?name=${encodeURIComponent(name)}`
+      );
+      if (!response.ok) throw new Error("Failed to fetch impact by name");
+      const data = await response.json();
+
+      if (data.error) return;
+
+      setMarkerLat(data.impact_data?.lat || markerLat);
+      setMarkerLon(data.impact_data?.lon || markerLon);
+      setMeteorDiameter(data.impact_data?.diameter_m || meteorDiameter);
+      setVelocity(data.impact_data?.velocity_km_s || velocity);
+      setAngle(data.impact_data?.angle_deg || angle);
+      setImpactData(data.impact_data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoadingImpact(false);
+    }
+  };
 
   // Loading simulation
   useEffect(() => {
@@ -809,11 +932,13 @@ export default function MeteorImpactSimulator({
       {/* Sidebar Info Panel */}
       <InfoPanel
         impactData={impactData}
+        loadingImpact={loadingImpact} // <-- add this
         markerLat={markerLat}
         markerLon={markerLon}
         meteorDiameter={meteorDiameter}
         velocity={velocity}
         angle={angle}
+        onSelectMeteor={fetchImpactByName}
       />
     </div>
   );
