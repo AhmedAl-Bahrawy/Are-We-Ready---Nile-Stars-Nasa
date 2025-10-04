@@ -467,7 +467,9 @@ function InfoPanel({
     </div>
   );
 }
-
+function lerp(a, b, t) {
+  return a + (b - a) * t;
+}
 // Animated explosion circles on map
 function ExplosionCircles({ center, impactData }) {
   const [animation, setAnimation] = useState(0);
@@ -540,10 +542,40 @@ function latLonToVector3(lat, lon, radius = 1) {
 }
 
 // Impact marker on 3D Earth
-function EarthMarker({ lat, lon, size }) {
-  const pos = latLonToVector3(lat, lon, 1.01);
+function EarthMarker({ lat, lon, size, startDistance = 5, speed = 0.02 }) {
+  const meshRef = useRef();
+
+  // Target position (just above Earth's surface)
+  const targetPos = latLonToVector3(lat, lon, 1.01);
+
+  // Start position (far away along the same direction)
+  const direction = targetPos.clone().normalize(); // unit vector from center
+  const startPos = direction.clone().multiplyScalar(startDistance);
+  const [currentPos, setCurrentPos] = useState(startPos);
+
+  useEffect(() => {
+    // Recalculate target and start when lat/lon changes
+    const newTarget = latLonToVector3(lat, lon, 1.01);
+    const newDir = newTarget.clone().normalize();
+    setCurrentPos(newDir.clone().multiplyScalar(startDistance));
+    targetPos.copy(newTarget);
+  }, [lat, lon]);
+
+  // Animate meteor toward Earth
+  useFrame(() => {
+    if (!meshRef.current) return;
+
+    // Interpolate position
+    const x = lerp(currentPos.x, targetPos.x, speed);
+    const y = lerp(currentPos.y, targetPos.y, speed);
+    const z = lerp(currentPos.z, targetPos.z, speed);
+
+    setCurrentPos(new THREE.Vector3(x, y, z));
+    meshRef.current.position.set(x, y, z);
+  });
+
   return (
-    <mesh position={pos}>
+    <mesh ref={meshRef}>
       <sphereGeometry args={[size, 16, 16]} />
       <meshStandardMaterial
         color="#ff3300"
@@ -553,6 +585,7 @@ function EarthMarker({ lat, lon, size }) {
     </mesh>
   );
 }
+
 
 // Earth 3D Model
 function EarthModel({ earthRef }) {
@@ -587,6 +620,7 @@ function SimulationScene({ markerLat, markerLon, markerSize, loadingImpact }) {
         {markerLat != null && markerLon != null && (
           <>
             <EarthMarker lat={markerLat} lon={markerLon} size={markerSize} />
+
 
             {loadingImpact && (
               <mesh position={latLonToVector3(markerLat, markerLon, 1.01)}>
