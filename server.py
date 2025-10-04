@@ -313,7 +313,7 @@ def impact_realistic(
 
 @app.get("/TENheads")
 def TENheads():
-    NASA_API_KEY = "DEMO_KEY"  # replace with your key
+    NASA_API_KEY = "hKO6v3qQBlF2722EfLnYRZZ6Ff1mWT0KMEqvZbnx"  # replace with your key
     NEO_API_URL = f"https://api.nasa.gov/neo/rest/v1/neo/browse?api_key={NASA_API_KEY}&size=10"
 
     try:
@@ -368,7 +368,7 @@ def TENheads():
     return results
 @app.get("/impact_by_name")
 def impact_by_name(name: str):
-    NASA_API_KEY = "DEMO_KEY"  # Replace with your actual key
+    NASA_API_KEY = "hKO6v3qQBlF2722EfLnYRZZ6Ff1mWT0KMEqvZbnx"  # Replace with your actual key
     NEO_API_URL = f"https://api.nasa.gov/neo/rest/v1/neo/browse?api_key={NASA_API_KEY}&size=50" 
 
     try:
