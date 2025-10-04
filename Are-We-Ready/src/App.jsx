@@ -40,6 +40,7 @@ function App() {
 
   const isAboutPage = location.pathname === "/About";
   const isSimulationPage = location.pathname === "/Simulation";
+  const isIntroPage = location.pathname === "/Intro";
 
   return (
     <TimingProvider>
@@ -51,9 +52,10 @@ function App() {
           width: "100vw",
           // reserve navbar height - Simulation page handles its own spacing
           paddingTop: isAboutPage || isSimulationPage ? 0 : "70px",
+
           height: isAboutPage
             ? "auto"
-            : isSimulationPage
+            : isSimulationPage || isIntroPage
             ? "100vh"
             : "calc(100vh - 70px)",
           minHeight: isAboutPage
