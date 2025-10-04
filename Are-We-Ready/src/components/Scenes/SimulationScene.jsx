@@ -14,7 +14,7 @@ import "leaflet/dist/leaflet.css";
 import * as THREE from "three";
 
 // Backend API configuration
-const API_BASE = "http://127.0.0.1:8000";
+const API_BASE = "https://backend-for-nasa-production.up.railway.app";
 
 async function getImpact(lat, lon, angle, diameter, velocity) {
   try {
