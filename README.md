@@ -112,32 +112,6 @@ src/
 - **Environment Variables**: The project uses a `.env` file for environment variables. The `.env` file should be placed in the root directory of the project.
 - **Configuration Files**: The project uses a `vite.config.js` file for Vite configuration.
 
-## 🤝 Contributing
-- **How to Contribute**: Fork the repository, create a new branch, and submit a pull request.
-- **Development Setup**: Follow the development guidelines provided in the README to set up a local development environment.
-- **Code Style Guidelines**: Follow the code style guidelines provided in the `.eslintrc.json` file.
-- **Pull Request Process**: Submit a pull request with a clear description of the changes and any relevant documentation.
-
-## 📝 License
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
-
-## 👥 Authors & Contributors
-- **Maintainers**: [Your Name]
-- **Contributors**: [List of contributors]
-
-## 🐛 Issues & Support
-- **Reporting Issues**: Please report any issues you encounter in the [GitHub Issues](https://github.com/your-repo/Are-We-Ready---Nile-Stars-Nasa/issues) section.
-- **Where to Get Help**: Feel free to ask questions in the [GitHub Discussions](https://github.com/your-repo/Are-We-Ready---Nile-Stars-Nasa/discussions) section.
-- **FAQ**: [Link to FAQ]
-
-## 🗺️ Roadmap
-- **Planned Features**:
-  - Add support for more celestial bodies.
-  - Improve the user interface.
-  - Add more interactive elements.
-- **Known Issues**: [List of known issues]
-- **Future Improvements**: [List of future improvements]
-
 ---
 
 **Additional Guidelines:**
@@ -148,10 +122,6 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 - Include relevant badges (build status, version, license, etc.)
 - Make installation instructions copy-pasteable
 - Focus on clarity and developer experience
-
-
-
-
 
 
 # Technical Documentation
