@@ -2,11 +2,15 @@ import React, { useMemo, Fragment, forwardRef } from "react";
 import { useGLTF } from "@react-three/drei";
 import { FireParticles } from "../Effects";
 import * as THREE from "three";
-const GLTF_LOADER =
-  "https://cdn.jsdelivr.net/gh/AhmedAl-Bahrawy/Are-We-Ready---Nile-Stars-Nasa-Models@main/Spaceship.glb";
 
 const Spaceship = forwardRef((props, ref) => {
-  const { nodes, materials } = useGLTF(GLTF_LOADER);
+  const { nodes, materials } = useGLTF(
+    "https://cdn.jsdelivr.net/gh/AhmedAl-Bahrawy/Are-We-Ready---Nile-Stars-Nasa-Models@main/Spaceship.glb",
+    true,
+    (error) => {
+      console.error("Error loading Spaceship model:", error);
+    }
+  );
 
   // Memoize engine configurations to prevent re-creation
   const engineConfigs = useMemo(
@@ -155,7 +159,9 @@ const Spaceship = forwardRef((props, ref) => {
     </group>
   );
 });
-useGLTF.preload(GLTF_LOADER);
+useGLTF.preload(
+  "https://cdn.jsdelivr.net/gh/AhmedAl-Bahrawy/Are-We-Ready---Nile-Stars-Nasa-Models@main/Spaceship.glb"
+);
 
 Spaceship.displayName = "Spaceship";
 
