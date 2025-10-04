@@ -1,46 +1,101 @@
-import React, { useMemo, Fragment, forwardRef, useEffect } from "react";
+import React, { useMemo, Fragment, forwardRef, useEffect, useState, useRef } from "react";
 import { useGLTF } from "@react-three/drei";
 import { FireParticles } from "../Effects";
 import * as THREE from "three";
 
-// Use CDN path for the Spaceship model
-const SPACESHIP_MODEL_URL = "https://cdn.jsdelivr.net/gh/AhmedAl-Bahrawy/Are-We-Ready---Nile-Stars-Nasa-Models@main/Spaceship.glb";
+// Define all possible paths for debugging
+const MODEL_PATHS = {
+  cdn: "https://cdn.jsdelivr.net/gh/AhmedAl-Bahrawy/Are-We-Ready---Nile-Stars-Nasa-Models@main/Spaceship.glb",
+  local: "/models/Spaceship.glb",
+  public: "/public/models/Spaceship.glb",
+};
+
+// Use CDN path as primary
+const MODEL_PATH = MODEL_PATHS.cdn;
 
 const Spaceship = forwardRef((props, ref) => {
-  // Load the spaceship model
-  const { scene, nodes, materials } = useGLTF(SPACESHIP_MODEL_URL);
-
-  // Debug logging
+  const [meshVisible, setMeshVisible] = useState(false);
+  const [modelError, setModelError] = useState(null);
+  const meshRef = useRef(null);
+  
+  // Log environment and path information once on mount
   useEffect(() => {
-    console.group("🚀 Spaceship Model Loading");
-    console.log("Model URL:", SPACESHIP_MODEL_URL);
-    console.log("Scene loaded:", !!scene);
-    console.log("Available nodes:", nodes ? Object.keys(nodes) : "None");
-    console.log("Available materials:", materials ? Object.keys(materials) : "None");
+    console.group("🚀 Spaceship Model Configuration");
+    console.log("Current Path Being Used:", MODEL_PATH);
+    console.log("Window Location:", window.location.href);
+    console.log("Base URL:", window.location.origin);
+    console.log("Pathname:", window.location.pathname);
+
+    // Environment information
+    console.log("Environment:", {
+      isDevelopment: import.meta.env.DEV,
+      isProduction: import.meta.env.PROD,
+      baseUrl: import.meta.env.BASE_URL,
+    });
     console.groupEnd();
-  }, [scene, nodes, materials]);
+  }, []);
 
-  // Log scene structure
+  // Load model with error handling
+  const { nodes, materials } = useGLTF(MODEL_PATH, undefined, (error) => {
+    console.error("❌ Spaceship Model Loading Error:", {
+      error,
+      attemptedPath: MODEL_PATH,
+      modelPaths: MODEL_PATHS,
+    });
+    setModelError(error);
+  });
+
+  // Log successful model loading
   useEffect(() => {
-    if (scene) {
-      console.group("✅ Spaceship Scene Structure");
-      
-      const logObject = (obj, depth = 0) => {
-        const prefix = "  ".repeat(depth);
-        console.log(`${prefix}${obj.name || 'unnamed'} [${obj.type}]`, {
-          hasGeometry: !!obj.geometry,
-          hasMaterial: !!obj.material,
-          children: obj.children.length
-        });
-        obj.children.forEach(child => logObject(child, depth + 1));
-      };
-      
-      logObject(scene);
-      console.groupEnd();
+    if (nodes && materials) {
+      console.log("✅ Spaceship Model Successfully Loaded:", {
+        nodes: Object.keys(nodes),
+        materials: Object.keys(materials),
+        modelPath: MODEL_PATH,
+      });
     }
-  }, [scene]);
+  }, [nodes, materials]);
 
-  // Memoize engine configurations
+  // Monitor mesh visibility
+  useEffect(() => {
+    if (modelError) {
+      setMeshVisible(false);
+      return;
+    }
+
+    const checkMeshVisibility = () => {
+      if (meshRef.current) {
+        const isVisible = meshRef.current.visible && 
+                         meshRef.current.geometry && 
+                         meshRef.current.material;
+        if (isVisible !== meshVisible) {
+          setMeshVisible(isVisible);
+          console.log("🚀 Spaceship mesh visibility:", 
+            isVisible ? "Visible" : "Hidden"
+          );
+        }
+      }
+    };
+
+    // Initial check
+    checkMeshVisibility();
+
+    // Periodic check for the first few seconds
+    const interval = setInterval(checkMeshVisibility, 500);
+    const timeout = setTimeout(() => {
+      clearInterval(interval);
+      if (!meshVisible && meshRef.current) {
+        console.warn("⚠️ Spaceship mesh still not visible after timeout");
+      }
+    }, 5000);
+
+    return () => {
+      clearInterval(interval);
+      clearTimeout(timeout);
+    };
+  }, [meshVisible, modelError]);
+
+  // Memoize engine configurations to prevent re-creation
   const engineConfigs = useMemo(
     () => ({
       mainEngines: [
@@ -91,29 +146,22 @@ const Spaceship = forwardRef((props, ref) => {
     []
   );
 
-  // Clone the scene to avoid mutations
-  const spaceshipScene = useMemo(() => {
-    if (!scene) return null;
-    return scene.clone();
-  }, [scene]);
-
-  if (!spaceshipScene) {
-    console.error("❌ Spaceship scene not loaded");
-    return null;
-  }
-
   return (
-    <group {...props} ref={ref}>
-      {/* Main spaceship - using primitive with the cloned scene */}
-      <primitive 
-        object={spaceshipScene} 
+    <group {...props} ref={ref} dispose={null}>
+      {/* Main spaceship mesh */}
+      <mesh
+        ref={meshRef}
+        geometry={nodes.Spaceship_BarbaraTheBee?.geometry}
+        material={materials.Atlas}
         scale={100}
-        rotation={[0, Math.PI, 0]}
+        onAfterRender={() => {
+          if (!meshVisible) setMeshVisible(true);
+        }}
       />
-
+      
       {/* Main Engine Exhausts - Large and Powerful */}
       <group>
-        {engineConfigs.mainEngines.map((engine) => (
+        {meshVisible && engineConfigs.mainEngines.map((engine) => (
           <Fragment key={`main-${engine.name}`}>
             <FireParticles
               position={engine.position}
@@ -140,7 +188,7 @@ const Spaceship = forwardRef((props, ref) => {
 
       {/* Maneuvering Thrusters - Smaller and More Precise */}
       <group>
-        {engineConfigs.maneuveringThrusters.map((thruster) => (
+        {meshVisible && engineConfigs.maneuveringThrusters.map((thruster) => (
           <Fragment key={`thruster-${thruster.name}`}>
             <FireParticles
               position={thruster.position}
@@ -166,8 +214,8 @@ const Spaceship = forwardRef((props, ref) => {
         ))}
       </group>
 
-      {/* Engine glow effects */}
-      {engineConfigs.mainEngines.map((engine, index) => (
+      {/* Engine glow effects - Main engines */}
+      {meshVisible && engineConfigs.mainEngines.map((engine, index) => (
         <pointLight
           key={`glow-main-${index}`}
           position={[
@@ -182,7 +230,8 @@ const Spaceship = forwardRef((props, ref) => {
         />
       ))}
 
-      {engineConfigs.maneuveringThrusters.map((thruster, index) => (
+      {/* Engine glow effects - Maneuvering thrusters */}
+      {meshVisible && engineConfigs.maneuveringThrusters.map((thruster, index) => (
         <pointLight
           key={`glow-thruster-${index}`}
           position={[
@@ -201,7 +250,7 @@ const Spaceship = forwardRef((props, ref) => {
 });
 
 // Preload the model
-useGLTF.preload(SPACESHIP_MODEL_URL);
+useGLTF.preload(MODEL_PATH);
 
 Spaceship.displayName = "Spaceship";
 

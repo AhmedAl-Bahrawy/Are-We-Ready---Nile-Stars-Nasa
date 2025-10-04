@@ -16,9 +16,9 @@ function About() {
       <div className="about-content">
         {/* Hero Section */}
         <div className="about-hero">
-          <h1 className="about-title">ABOUT COSMIC</h1>
+          <h1 className="about-title">ABOUT – ARE WE READY?</h1>
           <p className="about-subtitle">
-            Exploring the Universe, One Simulation at a Time
+            Presented by Nile Stars – Making Space Science Accessible
           </p>
         </div>
 
@@ -26,75 +26,82 @@ function About() {
         <section className="about-section">
           <h2 className="section-title">Our Mission</h2>
           <p className="section-text">
-            Welcome to Cosmic, an immersive space exploration platform that
-            brings the wonders of the universe to your fingertips. Our mission
-            is to make space science accessible, engaging, and educational for
-            everyone.
+            Near-Earth asteroids are a real risk, yet most people know very
+            little about them. Scientific data often stays limited to experts,
+            creating a gap between research and public awareness. 
+            Our mission is to close this gap by making asteroid science and
+            planetary defense simple, engaging, and accessible to everyone.
           </p>
+        </section>
+
+        {/* The Challenge & Our Solution */}
+        <section className="about-section">
+          <h2 className="section-title">The Challenge</h2>
           <p className="section-text">
-            Through cutting-edge 3D visualizations and real-time simulations, we
-            provide an interactive journey through meteor impacts, celestial
-            mechanics, and the vast mysteries of space. Whether you're a
-            student, educator, or space enthusiast, Cosmic offers an
-            unparalleled experience in understanding our universe.
+            People are not fully aware of the danger posed by near-Earth
+            asteroids. These objects can cause real damage to life on Earth,
+            yet information often feels distant and hard to understand.
+          </p>
+          <h2 className="section-title">Our Solution</h2>
+          <p className="section-text">
+            We created an interactive simulator designed for all audiences –
+            students, teachers, researchers, and the general public. Using real
+            NASA data, visual storytelling, and hands-on experiments, the
+            platform transforms complex science into an exciting and practical
+            experience.
           </p>
         </section>
 
         {/* Features Grid */}
         <div className="features-grid">
           <div className="feature-card">
-            <span className="feature-icon">🌌</span>
-            <h3 className="feature-title">Real-Time Simulations</h3>
+            <span className="feature-icon">🎮</span>
+            <h3 className="feature-title">For Students</h3>
             <p className="feature-description">
-              Experience accurate physics-based simulations of meteor impacts,
-              orbital mechanics, and celestial phenomena in stunning 3D
-              graphics.
+              Learn through fun games, animations, and stories that make
+              asteroid science exciting and easy to understand.
             </p>
           </div>
 
           <div className="feature-card">
-            <span className="feature-icon">🎓</span>
-            <h3 className="feature-title">Educational Content</h3>
+            <span className="feature-icon">👩‍🏫</span>
+            <h3 className="feature-title">For Teachers & Researchers</h3>
             <p className="feature-description">
-              Learn about space science through interactive visualizations and
-              detailed information about astronomical events and their effects.
+              Access real NASA data, accurate simulations, and analysis tools
+              for education, research, and science communication.
             </p>
           </div>
 
           <div className="feature-card">
-            <span className="feature-icon">🚀</span>
-            <h3 className="feature-title">Interactive Experience</h3>
+            <span className="feature-icon">🌍</span>
+            <h3 className="feature-title">For Everyone</h3>
             <p className="feature-description">
-              Control simulations, adjust parameters, and explore different
-              scenarios to understand the dynamics of space in an engaging way.
+              Enjoy a simple interface with clear visuals and experiments that
+              make asteroid science accessible to all.
             </p>
           </div>
         </div>
 
-        {/* Technology Section */}
+        {/* Recommendations Section */}
         <section className="about-section">
-          <h2 className="section-title">Powered by Modern Technology</h2>
-          <p className="section-text">
-            Cosmic is built using cutting-edge web technologies including React,
-            Three.js, and WebGL to deliver smooth, responsive, and visually
-            stunning experiences across all devices.
-          </p>
-          <p className="section-text">
-            Our platform leverages real astronomical data and physics
-            calculations to ensure accuracy while maintaining an intuitive and
-            beautiful user interface.
-          </p>
+          <h2 className="section-title">Future Recommendations</h2>
+          <ul className="section-text">
+            <li>⚡ Automated Alerts – Connect to real-time NASA NEO APIs to notify users about hazardous objects.</li>
+            <li>🌐 Multilingual Support – Provide interface and explanations in multiple languages (e.g., English, Arabic).</li>
+            <li>🔬 Energy Calculator – Allow users to calculate the energy needed to stop a meteor based on its size, density, and speed.</li>
+            <li>📊 Integration – Use NASA Planetary Data, USGS Earthquake, and Tsunami data for advanced real-world scenarios.</li>
+          </ul>
         </section>
 
         {/* Team Section */}
         <section className="team-section">
-          <h2 className="section-title">Built with Passion</h2>
+          <h2 className="section-title">About Nile Stars</h2>
           <div className="team-info">
             <p>
-              Cosmic is developed by a team passionate about space exploration
-              and education. We believe that understanding our universe should
-              be accessible to everyone, and we're committed to creating tools
-              that inspire curiosity and learning.
+              This project is developed by Nile Stars, a passionate team of
+              innovators dedicated to bridging the gap between science and
+              society. We believe that knowledge about our universe should be
+              open, engaging, and useful to everyone.
             </p>
           </div>
         </section>
@@ -102,7 +109,7 @@ function About() {
         {/* Call to Action */}
         <div className="about-cta">
           <Link to="/Intro" className="cta-button">
-            Start Your Journey
+            Explore the Simulator
           </Link>
         </div>
       </div>
