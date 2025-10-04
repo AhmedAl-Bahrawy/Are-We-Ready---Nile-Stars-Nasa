@@ -1,33 +1,15 @@
-import React, { useMemo, Fragment, forwardRef, useState } from "react";
+import React, { useMemo, Fragment, forwardRef } from "react";
 import { useGLTF } from "@react-three/drei";
 import { FireParticles } from "../Effects";
 import * as THREE from "three";
 
-const MODEL_PATHS = [
-  "https://cdn.jsdelivr.net/gh/AhmedAl-Bahrawy/Are-We-Ready---Nile-Stars-Nasa-Models@main/Spaceship.glb",
-  "/models/Spaceship.glb", // Local fallback
-];
+// Use local path for consistent loading in both development and production
+const MODEL_PATH =
+  "public/models/Spaceship.glb" ??
+  "https://cdn.jsdelivr.net/gh/AhmedAl-Bahrawy/Are-We-Ready---Nile-Stars-Nasa-Models@main/Spaceship.glb";
 
 const Spaceship = forwardRef((props, ref) => {
-  const [modelPathIndex, setModelPathIndex] = useState(0);
-
-  const { nodes, materials } = useGLTF(
-    MODEL_PATHS[modelPathIndex],
-    true,
-    (error) => {
-      if (modelPathIndex < MODEL_PATHS.length - 1) {
-        console.warn(
-          "Failed to load model from path:",
-          MODEL_PATHS[modelPathIndex],
-          error
-        );
-        setModelPathIndex((prev) => prev + 1);
-      } else {
-        console.error("Failed to load Spaceship model from all paths:", error);
-      }
-      console.error("Error loading Spaceship model:", error);
-    }
-  );
+  const { nodes, materials } = useGLTF(MODEL_PATH);
 
   // Memoize engine configurations to prevent re-creation
   const engineConfigs = useMemo(
@@ -176,9 +158,9 @@ const Spaceship = forwardRef((props, ref) => {
     </group>
   );
 });
-useGLTF.preload(
-  "https://cdn.jsdelivr.net/gh/AhmedAl-Bahrawy/Are-We-Ready---Nile-Stars-Nasa-Models@main/Spaceship.glb"
-);
+
+// Preload the model
+useGLTF.preload(MODEL_PATH);
 
 Spaceship.displayName = "Spaceship";
 
