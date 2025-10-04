@@ -1,7 +1,6 @@
 /maker.py
 
 # Ignore all model and image files
-*.glb
 *.jpg
 *.jpeg
 *.png
@@ -47,6 +46,3 @@ coverage/
 # Temporary files
 .tmp/
 .temp/
-
-# Project folders to ignore
-public/
