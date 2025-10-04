@@ -3,64 +3,44 @@ import { useGLTF } from "@react-three/drei";
 import { FireParticles } from "../Effects";
 import * as THREE from "three";
 
-// Define all possible paths for debugging
-const MODEL_PATHS = {
-  cdn: "https://cdn.jsdelivr.net/gh/AhmedAl-Bahrawy/Are-We-Ready---Nile-Stars-Nasa-Models@main/Spaceship.glb",
-  local: "/models/Spaceship.glb",
-  public: "/public/models/Spaceship.glb",
-};
-
-// Use CDN path as primary
-const GLTF_LOADER = MODEL_PATHS.cdn;
+// Use CDN path for the Spaceship model
+const SPACESHIP_MODEL_URL = "https://cdn.jsdelivr.net/gh/AhmedAl-Bahrawy/Are-We-Ready---Nile-Stars-Nasa-Models@main/Spaceship.glb";
 
 const Spaceship = forwardRef((props, ref) => {
+  // Load the spaceship model
+  const { scene, nodes, materials } = useGLTF(SPACESHIP_MODEL_URL);
+
+  // Debug logging
   useEffect(() => {
-    // Debug information about paths
-    console.group("🚀 Spaceship Model Loading Debug Info");
-    console.log("Available Model Paths:", {
-      cdn: MODEL_PATHS.cdn,
-      local: MODEL_PATHS.local,
-      public: MODEL_PATHS.public,
-    });
-    console.log("Current Path Being Used:", GLTF_LOADER);
-    console.log("Window Location:", window.location.href);
-    console.log("Base URL:", window.location.origin);
-    console.log("Pathname:", window.location.pathname);
-
-    // Test URL construction
-    const testUrl = new URL(GLTF_LOADER, window.location.origin);
-    console.log("Resolved URL:", testUrl.href);
-
-    // Environment information
-    console.log("Environment:", {
-      isDevelopment: import.meta.env.DEV,
-      isProduction: import.meta.env.PROD,
-      baseUrl: import.meta.env.BASE_URL,
-    });
+    console.group("🚀 Spaceship Model Loading");
+    console.log("Model URL:", SPACESHIP_MODEL_URL);
+    console.log("Scene loaded:", !!scene);
+    console.log("Available nodes:", nodes ? Object.keys(nodes) : "None");
+    console.log("Available materials:", materials ? Object.keys(materials) : "None");
     console.groupEnd();
-  }, []);
+  }, [scene, nodes, materials]);
 
-  // Load the model and handle errors
-  const { nodes, materials } = useGLTF(GLTF_LOADER, undefined, (error) => {
-    console.error("❌ Spaceship Model Loading Error:", {
-      error,
-      attemptedPath: GLTF_LOADER,
-      modelPaths: MODEL_PATHS,
-    });
-  });
-
-  // Log successful model loading
+  // Log scene structure
   useEffect(() => {
-    if (nodes && materials) {
-      console.log("✅ Spaceship Model Successfully Loaded:", {
-        nodes: Object.keys(nodes),
-        materials: Object.keys(materials),
-        modelPath: GLTF_LOADER,
-      });
+    if (scene) {
+      console.group("✅ Spaceship Scene Structure");
+      
+      const logObject = (obj, depth = 0) => {
+        const prefix = "  ".repeat(depth);
+        console.log(`${prefix}${obj.name || 'unnamed'} [${obj.type}]`, {
+          hasGeometry: !!obj.geometry,
+          hasMaterial: !!obj.material,
+          children: obj.children.length
+        });
+        obj.children.forEach(child => logObject(child, depth + 1));
+      };
+      
+      logObject(scene);
+      console.groupEnd();
     }
-  }, [nodes, materials]);
+  }, [scene]);
 
-  // Memoize engine configurations to prevent re-creation
+  // Memoize engine configurations
   const engineConfigs = useMemo(
     () => ({
       mainEngines: [
@@ -111,61 +91,28 @@ const Spaceship = forwardRef((props, ref) => {
     []
   );
 
-  // Debug node names
-  useEffect(() => {
-    if (nodes) {
-      console.log("🔍 Model Details:", {
-        nodes: Object.keys(nodes).map((key) => ({
-          name: key,
-          type: nodes[key].type,
-          geometry: nodes[key].geometry ? true : false,
-        })),
-        materials: Object.keys(materials),
-        sceneTree: Object.keys(nodes).map((key) => ({
-          name: key,
-          children: nodes[key].children?.length || 0,
-        })),
-      });
-    }
-  }, [nodes, materials]);
+  // Clone the scene to avoid mutations
+  const spaceshipScene = useMemo(() => {
+    if (!scene) return null;
+    return scene.clone();
+  }, [scene]);
 
-  // Find the main spaceship mesh
-  const mainNode = useMemo(() => {
-    // First try the known name
-    if (nodes.Spaceship_BarbaraTheBee) {
-      return nodes.Spaceship_BarbaraTheBee;
-    }
-    // Then try to find any mesh
-    return Object.values(nodes).find(
-      (node) => node.geometry && node.type === "Mesh"
-    );
-  }, [nodes]);
-
-  // Get the first available material if Atlas doesn't exist
-  const mainMaterial = materials.Atlas || Object.values(materials)[0];
-
-  if (!mainNode) {
-    console.error("❌ No suitable mesh found in the model");
+  if (!spaceshipScene) {
+    console.error("❌ Spaceship scene not loaded");
     return null;
   }
 
   return (
     <group {...props} ref={ref}>
-      {/* Main spaceship mesh */}
-      <group scale={1} rotation={[0, 0, 0]}>
-        <mesh
-          name="Spaceship_BarbaraTheBee"
-          geometry={mainNode.geometry}
-          material={mainMaterial}
-          position={[0, 0, 0]}
-          rotation={[0, 0, 0]}
-          scale={1}
-        >
-          <primitive object={mainNode} />
-        </mesh>
-      </group>
+      {/* Main spaceship - using primitive with the cloned scene */}
+      <primitive 
+        object={spaceshipScene} 
+        scale={100}
+        rotation={[0, Math.PI, 0]}
+      />
+
+      {/* Main Engine Exhausts - Large and Powerful */}
       <group>
-        {/* Main Engine Exhausts - Large and Powerful */}
         {engineConfigs.mainEngines.map((engine) => (
           <Fragment key={`main-${engine.name}`}>
             <FireParticles
@@ -219,7 +166,7 @@ const Spaceship = forwardRef((props, ref) => {
         ))}
       </group>
 
-      {/* Optional: Engine glow effects */}
+      {/* Engine glow effects */}
       {engineConfigs.mainEngines.map((engine, index) => (
         <pointLight
           key={`glow-main-${index}`}
@@ -254,7 +201,7 @@ const Spaceship = forwardRef((props, ref) => {
 });
 
 // Preload the model
-useGLTF.preload(GLTF_LOADER);
+useGLTF.preload(SPACESHIP_MODEL_URL);
 
 Spaceship.displayName = "Spaceship";
 
