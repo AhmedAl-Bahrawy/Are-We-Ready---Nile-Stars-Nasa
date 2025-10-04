@@ -155,9 +155,8 @@ const Spaceship = forwardRef((props, ref) => {
     </group>
   );
 });
+useGLTF.preload(GLTF_LOADER);
 
 Spaceship.displayName = "Spaceship";
 
 export default Spaceship;
-
-useGLTF.preload(GLTF_LOADER);
