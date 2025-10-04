@@ -215,7 +215,7 @@ function IntroSceneContent({ onMouseDown }) {
   );
 }
 
-export default function IS({ onMouseDown }) {
+export default function IS() { 
   return (
     <Canvas>
       <Environment preset="city" />
