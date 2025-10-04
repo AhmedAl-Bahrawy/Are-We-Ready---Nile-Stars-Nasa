@@ -1,14 +1,64 @@
-import React, { useMemo, Fragment, forwardRef } from "react";
+import React, { useMemo, Fragment, forwardRef, useEffect } from "react";
 import { useGLTF } from "@react-three/drei";
 import { FireParticles } from "../Effects";
 import * as THREE from "three";
 
-// Use the same CDN approach as SolarSystem for consistency
-const GLTF_LOADER =
-  "https://cdn.jsdelivr.net/gh/AhmedAl-Bahrawy/Are-We-Ready---Nile-Stars-Nasa-Models@main/Spaceship.glb";
+// Define all possible paths for debugging
+const MODEL_PATHS = {
+  cdn: "https://cdn.jsdelivr.net/gh/AhmedAl-Bahrawy/Are-We-Ready---Nile-Stars-Nasa-Models@main/Spaceship.glb",
+  local: "/models/Spaceship.glb",
+  public: "/public/models/Spaceship.glb",
+};
+
+// Use CDN path as primary
+const GLTF_LOADER = MODEL_PATHS.cdn;
 
 const Spaceship = forwardRef((props, ref) => {
-  const { nodes, materials } = useGLTF(GLTF_LOADER);
+  useEffect(() => {
+    // Debug information about paths
+    console.group("🚀 Spaceship Model Loading Debug Info");
+    console.log("Available Model Paths:", {
+      cdn: MODEL_PATHS.cdn,
+      local: MODEL_PATHS.local,
+      public: MODEL_PATHS.public,
+    });
+    console.log("Current Path Being Used:", GLTF_LOADER);
+    console.log("Window Location:", window.location.href);
+    console.log("Base URL:", window.location.origin);
+    console.log("Pathname:", window.location.pathname);
+
+    // Test URL construction
+    const testUrl = new URL(GLTF_LOADER, window.location.origin);
+    console.log("Resolved URL:", testUrl.href);
+
+    // Environment information
+    console.log("Environment:", {
+      isDevelopment: import.meta.env.DEV,
+      isProduction: import.meta.env.PROD,
+      baseUrl: import.meta.env.BASE_URL,
+    });
+    console.groupEnd();
+  }, []);
+
+  // Load the model and handle errors
+  const { nodes, materials } = useGLTF(GLTF_LOADER, undefined, (error) => {
+    console.error("❌ Spaceship Model Loading Error:", {
+      error,
+      attemptedPath: GLTF_LOADER,
+      modelPaths: MODEL_PATHS,
+    });
+  });
+
+  // Log successful model loading
+  useEffect(() => {
+    if (nodes && materials) {
+      console.log("✅ Spaceship Model Successfully Loaded:", {
+        nodes: Object.keys(nodes),
+        materials: Object.keys(materials),
+        modelPath: GLTF_LOADER,
+      });
+    }
+  }, [nodes, materials]);
 
   // Memoize engine configurations to prevent re-creation
   const engineConfigs = useMemo(
