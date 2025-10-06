@@ -813,3 +813,4 @@
     padding: 6px 10px;
   }
 }
+python -m  uvicorn server:app --reload --host 127.0.0.1 --port 8000 

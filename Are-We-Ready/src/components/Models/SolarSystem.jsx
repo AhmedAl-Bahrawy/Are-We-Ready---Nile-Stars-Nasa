@@ -29,7 +29,7 @@ export default function SolarSystem(props) {
             action.stop();
           }
         });
-      }, 25000); // 40,000 ms = 40 sec
+      }, 40000); // 40,000 ms = 40 sec
 
       // Cleanup on unmount
       return () => {

@@ -1,4 +1,4 @@
-import React, { useMemo, Fragment, forwardRef, useEffect, useState, useRef } from "react";
+import React, { useMemo, Fragment, forwardRef, useEffect } from "react";
 import { useGLTF } from "@react-three/drei";
 import { FireParticles } from "../Effects";
 import * as THREE from "three";
@@ -11,20 +11,25 @@ const MODEL_PATHS = {
 };
 
 // Use CDN path as primary
-const MODEL_PATH = MODEL_PATHS.cdn;
+const GLTF_LOADER = MODEL_PATHS.cdn;
 
 const Spaceship = forwardRef((props, ref) => {
-  const [meshVisible, setMeshVisible] = useState(false);
-  const [modelError, setModelError] = useState(null);
-  const meshRef = useRef(null);
-  
-  // Log environment and path information once on mount
   useEffect(() => {
-    console.group("🚀 Spaceship Model Configuration");
-    console.log("Current Path Being Used:", MODEL_PATH);
+    // Debug information about paths
+    console.group("🚀 Spaceship Model Loading Debug Info");
+    console.log("Available Model Paths:", {
+      cdn: MODEL_PATHS.cdn,
+      local: MODEL_PATHS.local,
+      public: MODEL_PATHS.public,
+    });
+    console.log("Current Path Being Used:", GLTF_LOADER);
     console.log("Window Location:", window.location.href);
     console.log("Base URL:", window.location.origin);
     console.log("Pathname:", window.location.pathname);
+
+    // Test URL construction
+    const testUrl = new URL(GLTF_LOADER, window.location.origin);
+    console.log("Resolved URL:", testUrl.href);
 
     // Environment information
     console.log("Environment:", {
@@ -35,14 +40,13 @@ const Spaceship = forwardRef((props, ref) => {
     console.groupEnd();
   }, []);
 
-  // Load model with error handling
-  const { nodes, materials } = useGLTF(MODEL_PATH, undefined, (error) => {
+  // Load the model and handle errors
+  const { nodes, materials } = useGLTF(GLTF_LOADER, undefined, (error) => {
     console.error("❌ Spaceship Model Loading Error:", {
       error,
-      attemptedPath: MODEL_PATH,
+      attemptedPath: GLTF_LOADER,
       modelPaths: MODEL_PATHS,
     });
-    setModelError(error);
   });
 
   // Log successful model loading
@@ -51,55 +55,16 @@ const Spaceship = forwardRef((props, ref) => {
       console.log("✅ Spaceship Model Successfully Loaded:", {
         nodes: Object.keys(nodes),
         materials: Object.keys(materials),
-        modelPath: MODEL_PATH,
+        modelPath: GLTF_LOADER,
       });
     }
   }, [nodes, materials]);
-
-  // Monitor mesh visibility
-  useEffect(() => {
-    if (modelError) {
-      setMeshVisible(false);
-      return;
-    }
-
-    const checkMeshVisibility = () => {
-      if (meshRef.current) {
-        const isVisible = meshRef.current.visible && 
-                         meshRef.current.geometry && 
-                         meshRef.current.material;
-        if (isVisible !== meshVisible) {
-          setMeshVisible(isVisible);
-          console.log("🚀 Spaceship mesh visibility:", 
-            isVisible ? "Visible" : "Hidden"
-          );
-        }
-      }
-    };
-
-    // Initial check
-    checkMeshVisibility();
-
-    // Periodic check for the first few seconds
-    const interval = setInterval(checkMeshVisibility, 500);
-    const timeout = setTimeout(() => {
-      clearInterval(interval);
-      if (!meshVisible && meshRef.current) {
-        console.warn("⚠️ Spaceship mesh still not visible after timeout");
-      }
-    }, 5000);
-
-    return () => {
-      clearInterval(interval);
-      clearTimeout(timeout);
-    };
-  }, [meshVisible, modelError]);
 
   // Memoize engine configurations to prevent re-creation
   const engineConfigs = useMemo(
     () => ({
       mainEngines: [
-        {
+        /*{
           name: "MainEngine_Left",
           position: [-1.2, -1.4, -2.5],
           colors: {
@@ -108,8 +73,8 @@ const Spaceship = forwardRef((props, ref) => {
             outer: new THREE.Color(0x1144aa),
             smoke: new THREE.Color(0x002244),
           },
-        },
-        {
+        },*/
+        /*{
           name: "MainEngine_Right",
           position: [1.2, -1.4, -2.5],
           colors: {
@@ -118,10 +83,10 @@ const Spaceship = forwardRef((props, ref) => {
             outer: new THREE.Color(0x1144aa),
             smoke: new THREE.Color(0x002244),
           },
-        },
+        },*/
       ],
       maneuveringThrusters: [
-        {
+        /*{
           name: "Thruster_TopLeft",
           position: [-1.2, 1.4, -2.2],
           colors: {
@@ -130,8 +95,8 @@ const Spaceship = forwardRef((props, ref) => {
             outer: new THREE.Color(0xff8800),
             smoke: new THREE.Color(0x442200),
           },
-        },
-        {
+        },*/
+        /*{
           name: "Thruster_TopRight",
           position: [1.2, 1.4, -2.2],
           colors: {
@@ -140,7 +105,7 @@ const Spaceship = forwardRef((props, ref) => {
             outer: new THREE.Color(0xff8800),
             smoke: new THREE.Color(0x442200),
           },
-        },
+        },*/
       ],
     }),
     []
@@ -150,18 +115,13 @@ const Spaceship = forwardRef((props, ref) => {
     <group {...props} ref={ref} dispose={null}>
       {/* Main spaceship mesh */}
       <mesh
-        ref={meshRef}
         geometry={nodes.Spaceship_BarbaraTheBee?.geometry}
         material={materials.Atlas}
         scale={100}
-        onAfterRender={() => {
-          if (!meshVisible) setMeshVisible(true);
-        }}
       />
-      
-      {/* Main Engine Exhausts - Large and Powerful */}
       <group>
-        {meshVisible && engineConfigs.mainEngines.map((engine) => (
+        {/* Main Engine Exhausts - Large and Powerful */}
+        {engineConfigs.mainEngines.map((engine) => (
           <Fragment key={`main-${engine.name}`}>
             <FireParticles
               position={engine.position}
@@ -188,7 +148,7 @@ const Spaceship = forwardRef((props, ref) => {
 
       {/* Maneuvering Thrusters - Smaller and More Precise */}
       <group>
-        {meshVisible && engineConfigs.maneuveringThrusters.map((thruster) => (
+        {engineConfigs.maneuveringThrusters.map((thruster) => (
           <Fragment key={`thruster-${thruster.name}`}>
             <FireParticles
               position={thruster.position}
@@ -214,8 +174,8 @@ const Spaceship = forwardRef((props, ref) => {
         ))}
       </group>
 
-      {/* Engine glow effects - Main engines */}
-      {meshVisible && engineConfigs.mainEngines.map((engine, index) => (
+      {/* Optional: Engine glow effects */}
+      {engineConfigs.mainEngines.map((engine, index) => (
         <pointLight
           key={`glow-main-${index}`}
           position={[
@@ -230,8 +190,7 @@ const Spaceship = forwardRef((props, ref) => {
         />
       ))}
 
-      {/* Engine glow effects - Maneuvering thrusters */}
-      {meshVisible && engineConfigs.maneuveringThrusters.map((thruster, index) => (
+      {engineConfigs.maneuveringThrusters.map((thruster, index) => (
         <pointLight
           key={`glow-thruster-${index}`}
           position={[
@@ -250,7 +209,7 @@ const Spaceship = forwardRef((props, ref) => {
 });
 
 // Preload the model
-useGLTF.preload(MODEL_PATH);
+useGLTF.preload(GLTF_LOADER);
 
 Spaceship.displayName = "Spaceship";
 
